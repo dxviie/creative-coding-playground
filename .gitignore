@@ -1,0 +1,11 @@
+.DS_Store
+ccp-svelte/node_modules
+ccp-svelte/build
+ccp-svelte/.svelte-kit
+ccp-svelte/package
+ccp-svelte/.env
+ccp-svelte/.env.*
+ccp-svelte/!.env.example
+ccp-svelte/vite.config.js.timestamp-*
+ccp-svelte/vite.config.ts.timestamp-*
+.idea
