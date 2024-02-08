@@ -6,6 +6,8 @@ export function testSketch(p: p5) {
     p.background(0);
   };
   p.draw = () => {
+    p.clear();
+    p.background(0);
     p.fill(255);
     p.ellipse(p.mouseX, p.mouseY, 50, 50);
   };
