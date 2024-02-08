@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import type p5 from 'p5';
+    import type {P5Sketch} from "../../types/sketchTypes";
 
-    export let sketch : (p: p5) => void;
+    export let sketch : P5Sketch;
 
     let canvas : HTMLElement;
 
@@ -14,7 +14,7 @@
         console.log('p5 loaded!')
         console.log(p5)
         // create a new p5 instance
-        new p5.default(sketch, canvas);
+        new p5.default(sketch.sketch, canvas);
     });
 
 </script>
