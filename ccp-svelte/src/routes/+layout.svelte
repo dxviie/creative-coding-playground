@@ -46,7 +46,6 @@
         background-color: black;
         color: white;
         font-family: "Courier New", monospace;
-        margin-bottom: 1rem;
     }
 
     .header-center {
@@ -65,9 +64,9 @@
     }
 
     .page-footer {
-        margin-top: 1rem;
         width: 100%;
         padding: .7rem;
+        background-color: black;
     }
 
 </style>

@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import type {P5Sketch} from "../../types/sketchTypes";
+  import {onMount} from 'svelte';
+  import type {P5Sketch} from "$lib/sketches/sketchTypes";
 
-    /**
+  /**
      *  GENUARY "CONTROLS"
      *    export let key = null;
      *    export let name = null;
@@ -17,7 +17,7 @@
      *    - record frame & video
      *    - NO MORE reset -> sketch is the p5/paper/... sketch as is (cfr p5 type)
      *    UTOPIA
-     *    - dynamic props system: number, range (min, max, step), color, boolean, string
+     *    - dynamiIc props system: number, range (min, max, step), color, boolean, string
      *      with automatic UI and data binding into sketch (somehow ?!)
      *
       */
@@ -26,11 +26,8 @@
     let canvas : HTMLElement;
 
     onMount(async () => {
-        // check if we're in the browser
         if (typeof window === 'undefined') return;
-        // dynamically load p5
         let p5 = await import('p5');
-        // create a new p5 instance
         new p5.default(sketch.sketch, canvas);
     });
 
