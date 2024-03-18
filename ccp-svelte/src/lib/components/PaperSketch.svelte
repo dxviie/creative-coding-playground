@@ -1,9 +1,9 @@
 <script lang="ts">
-  import {onMount} from "svelte";
-  import paper from 'paper';
-  import type {PaperSketch} from "$lib/sketches/sketchTypes";
+	import { onMount } from 'svelte';
+	import paper from 'paper';
+	import type { PaperSketch } from '$lib/sketches/sketchTypes';
 
-  export let sketch : PaperSketch;
+	export let sketch : PaperSketch;
 
   let canvas : HTMLCanvasElement;
 
@@ -13,7 +13,7 @@
   });
 </script>
 
-<canvas class="paper-canvas" bind:this={canvas}></canvas>
+<canvas class="paper-canvas" bind:this={canvas} data-paper-hidpi="off"></canvas>
 
 <style>
     .paper-canvas {
