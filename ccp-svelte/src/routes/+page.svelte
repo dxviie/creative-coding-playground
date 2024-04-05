@@ -1,6 +1,6 @@
 <script lang="ts">
-	import PaperSketch from '$lib/components/PaperSketch.svelte';
-	import { TestPatterns } from '$lib/sketches/paper/plotting/TestPatterns';
+	import { WaterRipples } from '$lib/sketches/p5/dandly-ambient/WaterRipples';
+	import P5Sketch from '$lib/components/P5Sketch.svelte';
 
 	/*
 			TODO - sketch selection
@@ -9,5 +9,5 @@
 
 </script>
 
-<!--<P5Sketch sketch={TestP5Sketch} />-->
-<PaperSketch sketch={TestPatterns} />
+<P5Sketch sketch={WaterRipples} />
+<!--<PaperSketch sketch={TestPatterns} />-->
