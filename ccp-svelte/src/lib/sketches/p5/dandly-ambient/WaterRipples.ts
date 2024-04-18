@@ -36,21 +36,59 @@ function sketch(p: p5) {
 		// previous[p.mouseX][p.mouseY - 1] = WHITE;
 	};
 
-	p.mouseClicked = () => {
-		if (p.mouseX < 0 || p.mouseX >= cols || p.mouseY < 0 || p.mouseY >= rows) {
-			return;
-		}
-		const d = 250;
+	const drawSquare = (cx: number, cy: number, d: number) => {
 		const r = d / 2;
 		for (let dx = -r; dx <= r; dx++) {
 			for (let dy = -r; dy <= r; dy++) {
-				const x = p.mouseX + dx;
-				const y = p.mouseY + dy;
+				const x = cx + dx;
+				const y = cy + dy;
 				if (x >= 0 && x < cols && y >= 0 && y < rows) {
 					previous[x][y] = WHITE;
 				}
 			}
 		}
+	};
+
+	const drawHorizontalBar = (cy: number, d: number) => {
+		const r = d / 2;
+		for (let x = 0; x < cols; x++) {
+			for (let y = cy - r; y < cy + r; y++) {
+				previous[x][y] = WHITE;
+			}
+		}
+	};
+
+	const drawCircle = (cx: number, cy: number, d: number) => {
+		const r = d / 2;
+		for (let dx = -r; dx <= r; dx++) {
+			for (let dy = -r; dy <= r; dy++) {
+				const x = cx + dx;
+				const y = cy + dy;
+				if (x >= 0 && x < cols && y >= 0 && y < rows) {
+					const d = p.dist(cx, cy, x, y);
+					if (d < r) {
+						previous[x][y] = WHITE;
+					}
+				}
+			}
+		}
+	};
+
+	p.mouseClicked = () => {
+		if (p.mouseX < 0 || p.mouseX >= cols || p.mouseY < 0 || p.mouseY >= rows) {
+			return;
+		}
+		// -
+		// drawSquare(p.mouseX, p.mouseY, 250);
+		// -
+		// drawHorizontalBar(p.height / 2, 200);
+		// -
+		// let m = p.height / 2;
+		// drawHorizontalBar(m / 2, 50);
+		// drawHorizontalBar(m, 50);
+		// drawHorizontalBar(m + m / 2, 50);
+		// -
+		drawCircle(p.mouseX, p.mouseY, 250);
 	};
 
 	p.draw = () => {

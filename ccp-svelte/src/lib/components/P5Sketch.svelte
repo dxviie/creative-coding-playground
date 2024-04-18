@@ -36,7 +36,8 @@
 				instance.draw = () => {
 					sketchDraw();
 					if (recording) {
-						instance.saveCanvas(`frame-${instance.frameCount}`, 'png');
+						let paddedFrame = String(instance.frameCount).padStart(10, '0');
+						instance.saveCanvas(`frame-${paddedFrame}`, 'png');
 					}
 				}
 		});
