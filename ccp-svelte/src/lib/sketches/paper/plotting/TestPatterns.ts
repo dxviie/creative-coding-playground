@@ -8,27 +8,29 @@ async function sketch(p: paper.PaperScope) {
 	// make an A3 sized rectangle
 	const baseLayer = new p.Layer();
 	const A3 = new p.Path.Rectangle({
-		from: [0, 0],
-		to: A3_SIZE_IN_POINTS,
+		position: [0, 0],
+		size: A3_SIZE_IN_POINTS,
 		strokeColor: 'black',
-		strokeWidth: 0
+		strokeWidth: 1
 	});
 	baseLayer.addChild(A3);
 
-	const tiles = 4;
-	const gap = mmToPoint(6);
-	const height = mmToPoint(35);
+	const tiles = 10;
+	const gap = mmToPoint(2);
+	const height = mmToPoint(20);
 	const tileWidth = A3.bounds.width / tiles - gap;
+	const tileSize = new p.Size(tileWidth, height);
 	for (let i = 0; i < tiles; i++) {
 		const l = new p.Layer();
 		const r = new p.Path.Rectangle({
-			from: [gap * (i + 1) + tileWidth * i, 10],
-			to: [gap * i + tileWidth * (i + 1), height],
+			position: [tileSize.width * i + gap * (i + 1), 10],
+			size: tileSize,
 			strokeColor: 'black',
 			strokeWidth: 1
 		});
 		l.addChild(r);
-		hatchRectangle(p, r, 45, mmToPoint(i * 2 + 1));
+		l.translate([-A3.bounds.width / 2 + tileWidth / 2 - gap / 2, 0]);
+		hatchRectangle(p, r, 45, i * 0.5 + 0.5);
 		baseLayer.addChild(l);
 	}
 
@@ -66,12 +68,12 @@ function hatchRectangle(
 
 	console.debug('finding start position');
 	while (h.intersects(rect)) {
-		h.translate([-mmSpacing, 0]);
+		h.translate([-mmToPoint(mmSpacing), 0]);
 		console.debug('translating', h.bounds);
 	}
 
 	do {
-		h.translate([mmSpacing, 0]);
+		h.translate([mmToPoint(mmSpacing), 0]);
 		const intersections = rect.getIntersections(h);
 		if (intersections.length === 2) {
 			const from = intersections[0].point;

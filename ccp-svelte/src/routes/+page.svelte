@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { WaterRipples } from '$lib/sketches/p5/dandly-ambient/WaterRipples';
-	import P5Sketch from '$lib/components/P5Sketch.svelte';
+	import PaperSketch from '$lib/components/PaperSketch.svelte';
+	import { BeHereNow } from '$lib/sketches/paper/plotting/BeHereNow';
 
 	/*
 			TODO - sketch selection
@@ -9,5 +9,6 @@
 
 </script>
 
-<P5Sketch sketch={WaterRipples} />
+<!--<P5Sketch sketch={WaterRipples} />-->
 <!--<PaperSketch sketch={TestPatterns} />-->
+<PaperSketch sketch={BeHereNow} />
