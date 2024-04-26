@@ -192,7 +192,7 @@ function sketch(p: paper.PaperScope) {
 	// };
 
 	const writeBeHereNow = (size: number, position: paper.Point) => {
-		const scale = 0.8;
+		const scale = 0.75;
 		const b = drawB(p, position, size);
 		b.scale(scale);
 		const e = drawE(p, new p.Point(position.x + size, position.y), size);
@@ -216,16 +216,17 @@ function sketch(p: paper.PaperScope) {
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
 		console.debug('::onFrame::', 'time', event.time, 'delta', event.delta, 'count', event.count);
 		// write beherenow in varying sizes
-		let mm = 10;
+		let mm = 3;
 		let offset = 10;
-		for (let i = mm; i > 0; i--) {
+		for (let i = mm; i > 1; ) {
 			const pointSize = i * MM_TO_PT;
 			const wordPointSize = pointSize * 9;
 			const times = Math.floor(WIDTH / wordPointSize);
 			for (let t = 0; t < times; t++) {
 				writeBeHereNow(pointSize, new p.Point(10 + t * wordPointSize, 10 + offset));
 			}
-			offset += pointSize + 10;
+			offset += pointSize + 0.1 * MM_TO_PT;
+			i -= 0.1;
 		}
 
 		p.project.view.pause();
