@@ -192,7 +192,7 @@ function sketch(p: paper.PaperScope) {
 	// };
 
 	const writeBeHereNow = (size: number, position: paper.Point) => {
-		const scale = 0.75;
+		const scale = size > 2 ? 0.75 : 0.6;
 		const b = drawB(p, position, size);
 		b.scale(scale);
 		const e = drawE(p, new p.Point(position.x + size, position.y), size);
@@ -218,14 +218,17 @@ function sketch(p: paper.PaperScope) {
 		// write beherenow in varying sizes
 		let mm = 3;
 		let offset = 10;
-		for (let i = mm; i > 1; ) {
-			const pointSize = i * MM_TO_PT;
-			const wordPointSize = pointSize * 9;
-			const times = Math.floor(WIDTH / wordPointSize);
-			for (let t = 0; t < times; t++) {
-				writeBeHereNow(pointSize, new p.Point(10 + t * wordPointSize, 10 + offset));
+		for (let i = mm; i > 1.5; ) {
+			for (let j = 0; j < 5; j++) {
+				console.log('writing be here now', i, offset, 'j', j);
+				const pointSize = i * MM_TO_PT;
+				const wordPointSize = pointSize * 9;
+				const times = Math.floor(WIDTH / wordPointSize);
+				for (let t = 0; t < times; t++) {
+					writeBeHereNow(pointSize, new p.Point(10 + t * wordPointSize, 10 + offset));
+				}
+				offset += pointSize + 0.1 * MM_TO_PT;
 			}
-			offset += pointSize + 0.1 * MM_TO_PT;
 			i -= 0.1;
 		}
 
