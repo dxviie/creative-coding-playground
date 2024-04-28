@@ -69,6 +69,10 @@ function drawH(p: paper.PaperScope, position: paper.Point, size: number) {
 			new p.Path.Line(
 				new p.Point(position.x + size, position.y),
 				new p.Point(position.x + size, position.y + size)
+			),
+			new p.Path.Line(
+				new p.Point(position.x + size / 2, position.y + size * 0.8),
+				new p.Point(position.x + size / 2, position.y + size * 1.6)
 			)
 		],
 		strokeColor: 'red',
@@ -112,10 +116,6 @@ function drawN(p: paper.PaperScope, position: paper.Point, size: number) {
 			new p.Path.Line(position, new p.Point(position.x, position.y + size)),
 			new p.Path.Line(
 				new p.Point(position.x, position.y),
-				new p.Point(position.x, position.y + size)
-			),
-			new p.Path.Line(
-				new p.Point(position.x, position.y),
 				new p.Point(position.x + size, position.y + size)
 			),
 			new p.Path.Line(
@@ -132,7 +132,11 @@ function drawN(p: paper.PaperScope, position: paper.Point, size: number) {
 function drawO(p: paper.PaperScope, position: paper.Point, size: number) {
 	const letterO = new p.CompoundPath({
 		children: [
-			new p.Path.Circle(new p.Point(position.x + size / 2, position.y + size / 2), size / 2)
+			new p.Path.Circle(new p.Point(position.x + size / 2, position.y + size / 2), size / 2),
+			new p.Path.Line(
+				new p.Point(position.x, position.y + size),
+				new p.Point(position.x + size, position.y)
+			)
 		],
 		strokeColor: 'red',
 		strokeWidth: 1
@@ -216,10 +220,10 @@ function sketch(p: paper.PaperScope) {
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
 		console.debug('::onFrame::', 'time', event.time, 'delta', event.delta, 'count', event.count);
 		// write beherenow in varying sizes
-		let mm = 3;
+		let mm = 5;
 		let offset = 10;
-		for (let i = mm; i > 1.5; ) {
-			for (let j = 0; j < 5; j++) {
+		for (let i = mm; i > 4.9; ) {
+			for (let j = 0; j < 15; j++) {
 				console.log('writing be here now', i, offset, 'j', j);
 				const pointSize = i * MM_TO_PT;
 				const wordPointSize = pointSize * 9;
