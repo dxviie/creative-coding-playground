@@ -236,6 +236,9 @@ function sketch(p: paper.PaperScope) {
 			i -= 0.1;
 		}
 
+		p.project.view.scale(1.3);
+		p.project.view.translate([p.project.view.bounds.width / 3, p.project.view.bounds.height / 4.5]);
+
 		p.project.view.pause();
 	};
 
