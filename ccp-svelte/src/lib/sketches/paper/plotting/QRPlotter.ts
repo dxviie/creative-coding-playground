@@ -6,9 +6,10 @@ import type { PaperSketch } from '$lib/sketches/sketchTypes';
 const MM_TO_PT = 3.775;
 const WIDTH = 15 * MM_TO_PT;
 const HEIGHT = 15 * MM_TO_PT;
-const PEN_WIDTH = 0.5;
-const PEN_WIDTH_PT = PEN_WIDTH * MM_TO_PT;
+const PEN_WIDTH = 0.3 * MM_TO_PT;
 const VIEW_SCALE = 15;
+const HOR_COLOR = 'orange';
+const VERT_COLOR = 'green';
 
 function hasBlockAt(blocks: paper.Path.Rectangle[], point: paper.Point): boolean {
 	return blocks.some((block) => block.contains(point));
@@ -125,7 +126,7 @@ async function sketch(p: paper.PaperScope) {
 							const r = new p.Path.Rectangle({
 								from: [startX * targetBlockSize, y * targetBlockSize],
 								to: [(endX + 1) * targetBlockSize, (y + 1) * targetBlockSize],
-								fillColor: 'orange',
+								fillColor: HOR_COLOR,
 								opacity: 0.5
 							});
 							if (startX == endX) {
@@ -143,7 +144,7 @@ async function sketch(p: paper.PaperScope) {
 					const r = new p.Path.Rectangle({
 						from: [startX * targetBlockSize, y * targetBlockSize],
 						to: [(endX + 1) * targetBlockSize, (y + 1) * targetBlockSize],
-						fillColor: 'green',
+						fillColor: HOR_COLOR,
 						opacity: 0.5
 					});
 					if (startX == endX) {
@@ -179,7 +180,7 @@ async function sketch(p: paper.PaperScope) {
 							const r = new p.Path.Rectangle({
 								from: [x * targetBlockSize, startY * targetBlockSize],
 								to: [(x + 1) * targetBlockSize, (endY + 1) * targetBlockSize],
-								fillColor: 'blue',
+								fillColor: VERT_COLOR,
 								opacity: 0.5
 							});
 							verticalRectangles.push(r);
@@ -192,7 +193,7 @@ async function sketch(p: paper.PaperScope) {
 					const r = new p.Path.Rectangle({
 						from: [x * targetBlockSize, startY * targetBlockSize],
 						to: [(x + 1) * targetBlockSize, (endY + 1) * targetBlockSize],
-						fillColor: 'blue',
+						fillColor: VERT_COLOR,
 						opacity: 0.5
 					});
 					verticalRectangles.push(r);
@@ -209,9 +210,9 @@ async function sketch(p: paper.PaperScope) {
 			 								DRAWING THE ACTUAL PLOTTABLE LINES
 			 ************************************************************************/
 
-			const lines = Math.floor(targetBlockSize / PEN_WIDTH_PT) + 1;
-			const offset = lines <= 2 ? targetBlockSize / 2 : 0;
-			let lineHeight = (targetBlockSize - PEN_WIDTH_PT) / (lines - 1);
+			const penWidth = PEN_WIDTH > targetBlockSize ? targetBlockSize : PEN_WIDTH;
+			const lines = Math.floor(targetBlockSize / penWidth) + 1;
+			let lineHeight = targetBlockSize / lines;
 			if (lineHeight < 0) {
 				lineHeight = targetBlockSize;
 			}
@@ -222,35 +223,90 @@ async function sketch(p: paper.PaperScope) {
 				lineHeight,
 				'targetBlockSize',
 				targetBlockSize,
-				'PEN_WIDTH_PT',
-				PEN_WIDTH_PT
+				'penWidth',
+				penWidth
 			);
 			for (const rectangle of horizontalRectangles) {
-				for (let l = 0; l < lines; l++) {
-					const y = rectangle.bounds.top + l * lineHeight + offset;
+				const yStart = rectangle.bounds.y + penWidth / 2;
+				for (let l = 0; l < lines - 1; l++) {
+					const y = yStart + l * lineHeight;
 					new p.Path.Line({
-						from: [rectangle.bounds.x, y],
-						to: [rectangle.bounds.x + rectangle.bounds.width, y],
+						from: [rectangle.bounds.x + penWidth / 2, y],
+						to: [rectangle.bounds.x + rectangle.bounds.width - penWidth / 2, y],
 						strokeColor: 'black',
-						strokeWidth: PEN_WIDTH_PT,
+						strokeWidth: penWidth,
 						opacity: 0.5
 					});
-					rectangle.remove();
 				}
+				// last line, start from bottom
+				const y = rectangle.bounds.y + rectangle.bounds.height - penWidth / 2;
+				new p.Path.Line({
+					from: [rectangle.bounds.x + penWidth / 2, y],
+					to: [rectangle.bounds.x + rectangle.bounds.width - penWidth / 2, y],
+					strokeColor: 'black',
+					strokeWidth: penWidth,
+					opacity: 0.5
+				});
+				// add vertical lines at the ends
+				new p.Path.Line({
+					from: [rectangle.bounds.x + penWidth / 2, rectangle.bounds.y],
+					to: [rectangle.bounds.x + penWidth / 2, rectangle.bounds.y + rectangle.bounds.height],
+					strokeColor: 'black',
+					strokeWidth: penWidth,
+					opacity: 0.5
+				});
+				new p.Path.Line({
+					from: [rectangle.bounds.x + rectangle.bounds.width - penWidth / 2, rectangle.bounds.y],
+					to: [
+						rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
+						rectangle.bounds.y + rectangle.bounds.height
+					],
+					strokeColor: 'black',
+					strokeWidth: penWidth,
+					opacity: 0.5
+				});
+				rectangle.remove();
 			}
 
 			for (const rectangle of verticalRectangles) {
-				for (let l = 0; l < lines; l++) {
-					const x = rectangle.bounds.left + l * lineHeight + offset;
+				for (let l = 0; l < lines - 1; l++) {
+					const x = rectangle.bounds.left + l * lineHeight + penWidth / 2;
 					new p.Path.Line({
 						from: [x, rectangle.bounds.y],
 						to: [x, rectangle.bounds.y + rectangle.bounds.height],
 						strokeColor: 'black',
-						strokeWidth: PEN_WIDTH_PT,
+						strokeWidth: penWidth,
 						opacity: 0.5
 					});
-					rectangle.remove();
 				}
+				// last line, start from right
+				const x = rectangle.bounds.left + rectangle.bounds.width - penWidth / 2;
+				new p.Path.Line({
+					from: [x, rectangle.bounds.y],
+					to: [x, rectangle.bounds.y + rectangle.bounds.height],
+					strokeColor: 'black',
+					strokeWidth: penWidth,
+					opacity: 0.5
+				});
+				// add horizontal lines at the ends
+				new p.Path.Line({
+					from: [rectangle.bounds.x, rectangle.bounds.y + penWidth / 2],
+					to: [rectangle.bounds.x + rectangle.bounds.width, rectangle.bounds.y + penWidth / 2],
+					strokeColor: 'black',
+					strokeWidth: penWidth,
+					opacity: 0.5
+				});
+				new p.Path.Line({
+					from: [rectangle.bounds.x, rectangle.bounds.y + rectangle.bounds.height - penWidth / 2],
+					to: [
+						rectangle.bounds.x + rectangle.bounds.width,
+						rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
+					],
+					strokeColor: 'black',
+					strokeWidth: penWidth,
+					opacity: 0.5
+				});
+				rectangle.remove();
 			}
 
 			p.project.activeLayer.position = p.project.view.center;
