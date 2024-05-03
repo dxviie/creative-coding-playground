@@ -6,9 +6,9 @@ import type { PaperSketch } from '$lib/sketches/sketchTypes';
 const MM_TO_PT = 3.775;
 const WIDTH = 15 * MM_TO_PT;
 const HEIGHT = 15 * MM_TO_PT;
-const PEN_WIDTH = 0.05;
+const PEN_WIDTH = 0.2;
 const PEN_WIDTH_PT = PEN_WIDTH * MM_TO_PT;
-const VIEW_SCALE = 15;
+const VIEW_SCALE = 1;
 
 function hasBlockAt(blocks: paper.Path.Rectangle[], point: paper.Point): boolean {
 	return blocks.some((block) => block.contains(point));
@@ -146,22 +146,31 @@ async function sketch(p: paper.PaperScope) {
 
 			const lines = Math.floor(targetBlockSize / PEN_WIDTH_PT) + 1;
 			const lineHeight = (targetBlockSize - PEN_WIDTH_PT) / (lines - 1);
-			console.log('lines', lines);
+			console.log(
+				'lines',
+				lines,
+				'lineHeight',
+				lineHeight,
+				'targetBlockSize',
+				targetBlockSize,
+				'PEN_WIDTH_PT',
+				PEN_WIDTH_PT
+			);
 			for (const rectangle of groupedRects) {
 				for (let l = 0; l < lines; l++) {
 					const y = rectangle.bounds.y + PEN_WIDTH_PT / 2 + l * lineHeight;
 					new p.Path.Line({
-						from: [rectangle.bounds.x, y],
-						to: [rectangle.bounds.x + rectangle.bounds.width, y],
+						from: [rectangle.bounds.x + PEN_WIDTH / 2, y],
+						to: [rectangle.bounds.x + rectangle.bounds.width - PEN_WIDTH / 2, y],
 						strokeColor: 'black',
-						strokeWidth: PEN_WIDTH
+						strokeWidth: lineHeight
 					});
 					rectangle.remove();
 				}
 			}
 
 			p.project.activeLayer.position = p.project.view.center;
-			// p.view.scale(VIEW_SCALE);
+			p.view.scale(VIEW_SCALE);
 			p.project.view.pause();
 		}
 	};
