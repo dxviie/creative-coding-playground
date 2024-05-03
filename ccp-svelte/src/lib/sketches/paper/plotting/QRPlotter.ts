@@ -6,9 +6,9 @@ import type { PaperSketch } from '$lib/sketches/sketchTypes';
 const MM_TO_PT = 3.775;
 const WIDTH = 15 * MM_TO_PT;
 const HEIGHT = 15 * MM_TO_PT;
-const PEN_WIDTH = 0.2;
+const PEN_WIDTH = 0.5;
 const PEN_WIDTH_PT = PEN_WIDTH * MM_TO_PT;
-const VIEW_SCALE = 1;
+const VIEW_SCALE = 15;
 
 function hasBlockAt(blocks: paper.Path.Rectangle[], point: paper.Point): boolean {
 	return blocks.some((block) => block.contains(point));
@@ -18,6 +18,9 @@ async function sketch(p: paper.PaperScope) {
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-expect-error
 	import('qrcode-svg').then(({ default: QRCode }) => {
+		/************************************************************************
+											QR CODE GENERATION & PREPARATION
+		 ************************************************************************/
 		// Create a new QRCode
 		const qr = new QRCode({
 			content: 'https://qr.d17e.dev/abcd',
@@ -98,11 +101,16 @@ async function sketch(p: paper.PaperScope) {
 				qrBlockDimensions
 			);
 
+			/************************************************************************
+			 						GROUPING BLOCKS HORIZONTALLY & VERTICALLY
+			 ************************************************************************/
+
 			const targetBlockSize = WIDTH / qrBlockDimensions;
 			// In the first pass we group horizontally
 			let startX = -1;
 			let endX = -1;
-			const groupedRects: paper.Path.Rectangle[] = [];
+			const horizontalRectangles: paper.Path.Rectangle[] = [];
+			const singleRectangles: paper.Path.Rectangle[] = [];
 			for (let y = 0; y < qrBlockDimensions; y++) {
 				for (let x = 0; x < qrBlockDimensions; x++) {
 					const point = new p.Point(
@@ -114,14 +122,17 @@ async function sketch(p: paper.PaperScope) {
 						endX = x;
 					} else {
 						if (startX >= 0 && endX >= 0) {
-							groupedRects.push(
-								new p.Path.Rectangle({
-									from: [startX * targetBlockSize, y * targetBlockSize],
-									to: [(endX + 1) * targetBlockSize, (y + 1) * targetBlockSize],
-									fillColor: 'orange',
-									opacity: 0.5
-								})
-							);
+							const r = new p.Path.Rectangle({
+								from: [startX * targetBlockSize, y * targetBlockSize],
+								to: [(endX + 1) * targetBlockSize, (y + 1) * targetBlockSize],
+								fillColor: 'orange',
+								opacity: 0.5
+							});
+							if (startX == endX) {
+								singleRectangles.push(r);
+							} else {
+								horizontalRectangles.push(r);
+							}
 							startX = -1;
 							endX = -1;
 						}
@@ -129,23 +140,81 @@ async function sketch(p: paper.PaperScope) {
 				}
 
 				if (startX >= 0 && endX >= 0) {
-					groupedRects.push(
-						new p.Path.Rectangle({
-							from: [startX * targetBlockSize, y * targetBlockSize],
-							to: [(endX + 1) * targetBlockSize, (y + 1) * targetBlockSize],
-							fillColor: 'green',
-							opacity: 0.5
-						})
-					);
+					const r = new p.Path.Rectangle({
+						from: [startX * targetBlockSize, y * targetBlockSize],
+						to: [(endX + 1) * targetBlockSize, (y + 1) * targetBlockSize],
+						fillColor: 'green',
+						opacity: 0.5
+					});
+					if (startX == endX) {
+						singleRectangles.push(r);
+					} else {
+						horizontalRectangles.push(r);
+					}
 					startX = -1;
 					endX = -1;
 				}
 			}
-			console.debug('groupedRects', groupedRects.length);
+			console.debug(
+				'horizontalRectangles',
+				horizontalRectangles.length,
+				'singleRectangles',
+				singleRectangles.length
+			);
+
+			let startY = -1;
+			let endY = -1;
+			const verticalRectangles: paper.Path.Rectangle[] = [];
+			for (let x = 0; x < qrBlockDimensions; x++) {
+				for (let y = 0; y < qrBlockDimensions; y++) {
+					const point = new p.Point(
+						x * targetBlockSize + targetBlockSize / 2,
+						y * targetBlockSize + targetBlockSize / 2
+					);
+					if (hasBlockAt(singleRectangles, point)) {
+						if (startY < 0) startY = y;
+						endY = y;
+					} else {
+						if (startY >= 0 && endY >= 0) {
+							const r = new p.Path.Rectangle({
+								from: [x * targetBlockSize, startY * targetBlockSize],
+								to: [(x + 1) * targetBlockSize, (endY + 1) * targetBlockSize],
+								fillColor: 'blue',
+								opacity: 0.5
+							});
+							verticalRectangles.push(r);
+							startY = -1;
+							endY = -1;
+						}
+					}
+				}
+				if (startY >= 0 && endY >= 0) {
+					const r = new p.Path.Rectangle({
+						from: [x * targetBlockSize, startY * targetBlockSize],
+						to: [(x + 1) * targetBlockSize, (endY + 1) * targetBlockSize],
+						fillColor: 'blue',
+						opacity: 0.5
+					});
+					verticalRectangles.push(r);
+					startY = -1;
+					endY = -1;
+				}
+			}
+			console.debug('verticalRectangles', verticalRectangles.length);
+			singleRectangles.forEach((r) => r.remove());
+			singleRectangles.length = 0;
 			targetRect.remove();
 
+			/************************************************************************
+			 								DRAWING THE ACTUAL PLOTTABLE LINES
+			 ************************************************************************/
+
 			const lines = Math.floor(targetBlockSize / PEN_WIDTH_PT) + 1;
-			const lineHeight = (targetBlockSize - PEN_WIDTH_PT) / (lines - 1);
+			const offset = lines <= 2 ? targetBlockSize / 2 : 0;
+			let lineHeight = (targetBlockSize - PEN_WIDTH_PT) / (lines - 1);
+			if (lineHeight < 0) {
+				lineHeight = targetBlockSize;
+			}
 			console.log(
 				'lines',
 				lines,
@@ -156,12 +225,26 @@ async function sketch(p: paper.PaperScope) {
 				'PEN_WIDTH_PT',
 				PEN_WIDTH_PT
 			);
-			for (const rectangle of groupedRects) {
+			for (const rectangle of horizontalRectangles) {
 				for (let l = 0; l < lines; l++) {
-					const y = rectangle.bounds.y + l * lineHeight;
+					const y = rectangle.bounds.top + l * lineHeight + offset;
 					new p.Path.Line({
 						from: [rectangle.bounds.x, y],
 						to: [rectangle.bounds.x + rectangle.bounds.width, y],
+						strokeColor: 'black',
+						strokeWidth: PEN_WIDTH_PT,
+						opacity: 0.5
+					});
+					rectangle.remove();
+				}
+			}
+
+			for (const rectangle of verticalRectangles) {
+				for (let l = 0; l < lines; l++) {
+					const x = rectangle.bounds.left + l * lineHeight + offset;
+					new p.Path.Line({
+						from: [x, rectangle.bounds.y],
+						to: [x, rectangle.bounds.y + rectangle.bounds.height],
 						strokeColor: 'black',
 						strokeWidth: PEN_WIDTH_PT,
 						opacity: 0.5
@@ -175,6 +258,10 @@ async function sketch(p: paper.PaperScope) {
 			p.project.view.pause();
 		}
 	};
+
+	/************************************************************************
+			 												EVENT HANDLING
+	 ************************************************************************/
 
 	p.project.view.onClick = (event: paper.MouseEvent) => {
 		console.debug('::onClick::', 'event', event);
