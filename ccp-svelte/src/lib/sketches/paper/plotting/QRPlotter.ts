@@ -188,26 +188,30 @@ async function sketch(p: paper.PaperScope) {
 						endY = y;
 					} else {
 						if (startY >= 0 && endY >= 0) {
-							const r = new p.Path.Rectangle({
-								from: [x * targetBlockSize, startY * targetBlockSize],
-								to: [(x + 1) * targetBlockSize, (endY + 1) * targetBlockSize],
-								fillColor: VERT_COLOR,
-								opacity: 0.5
-							});
-							verticalRectangles.push(r);
+							if (startY !== endY || !ALLOW_OVERLAP) {
+								const r = new p.Path.Rectangle({
+									from: [x * targetBlockSize, startY * targetBlockSize],
+									to: [(x + 1) * targetBlockSize, (endY + 1) * targetBlockSize],
+									fillColor: VERT_COLOR,
+									opacity: 0.5
+								});
+								verticalRectangles.push(r);
+							}
 							startY = -1;
 							endY = -1;
 						}
 					}
 				}
 				if (startY >= 0 && endY >= 0) {
-					const r = new p.Path.Rectangle({
-						from: [x * targetBlockSize, startY * targetBlockSize],
-						to: [(x + 1) * targetBlockSize, (endY + 1) * targetBlockSize],
-						fillColor: VERT_COLOR,
-						opacity: 0.5
-					});
-					verticalRectangles.push(r);
+					if (startY !== endY || !ALLOW_OVERLAP) {
+						const r = new p.Path.Rectangle({
+							from: [x * targetBlockSize, startY * targetBlockSize],
+							to: [(x + 1) * targetBlockSize, (endY + 1) * targetBlockSize],
+							fillColor: VERT_COLOR,
+							opacity: 0.5
+						});
+						verticalRectangles.push(r);
+					}
 					startY = -1;
 					endY = -1;
 				}
