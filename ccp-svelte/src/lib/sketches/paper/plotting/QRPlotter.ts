@@ -249,17 +249,23 @@ async function sketch(p: paper.PaperScope) {
 				});
 				// add vertical lines at the ends
 				new p.Path.Line({
-					from: [rectangle.bounds.x + penWidth / 2, rectangle.bounds.y],
-					to: [rectangle.bounds.x + penWidth / 2, rectangle.bounds.y + rectangle.bounds.height],
+					from: [rectangle.bounds.x + penWidth / 2, rectangle.bounds.y + penWidth / 2],
+					to: [
+						rectangle.bounds.x + penWidth / 2,
+						rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
+					],
 					strokeColor: 'black',
 					strokeWidth: penWidth,
 					opacity: 0.5
 				});
 				new p.Path.Line({
-					from: [rectangle.bounds.x + rectangle.bounds.width - penWidth / 2, rectangle.bounds.y],
+					from: [
+						rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
+						rectangle.bounds.y + penWidth / 2
+					],
 					to: [
 						rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
-						rectangle.bounds.y + rectangle.bounds.height
+						rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
 					],
 					strokeColor: 'black',
 					strokeWidth: penWidth,
@@ -290,16 +296,22 @@ async function sketch(p: paper.PaperScope) {
 				});
 				// add horizontal lines at the ends
 				new p.Path.Line({
-					from: [rectangle.bounds.x, rectangle.bounds.y + penWidth / 2],
-					to: [rectangle.bounds.x + rectangle.bounds.width, rectangle.bounds.y + penWidth / 2],
+					from: [rectangle.bounds.x + penWidth / 2, rectangle.bounds.y + penWidth / 2],
+					to: [
+						rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
+						rectangle.bounds.y + penWidth / 2
+					],
 					strokeColor: 'black',
 					strokeWidth: penWidth,
 					opacity: 0.5
 				});
 				new p.Path.Line({
-					from: [rectangle.bounds.x, rectangle.bounds.y + rectangle.bounds.height - penWidth / 2],
+					from: [
+						rectangle.bounds.x + penWidth / 2,
+						rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
+					],
 					to: [
-						rectangle.bounds.x + rectangle.bounds.width,
+						rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
 						rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
 					],
 					strokeColor: 'black',
