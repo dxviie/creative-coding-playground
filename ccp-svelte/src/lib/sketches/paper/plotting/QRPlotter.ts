@@ -6,7 +6,7 @@ import type { PaperSketch } from '$lib/sketches/sketchTypes';
 const MM_TO_PT = 3.775;
 const WIDTH = 15 * MM_TO_PT;
 const HEIGHT = 15 * MM_TO_PT;
-const PEN_WIDTH = 0.3 * MM_TO_PT;
+const PEN_WIDTH = 1 * MM_TO_PT;
 const VIEW_SCALE = 15;
 const HOR_COLOR = 'orange';
 const VERT_COLOR = 'green';
@@ -210,8 +210,18 @@ async function sketch(p: paper.PaperScope) {
 			 								DRAWING THE ACTUAL PLOTTABLE LINES
 			 ************************************************************************/
 
-			const penWidth = PEN_WIDTH > targetBlockSize ? targetBlockSize : PEN_WIDTH;
-			const lines = Math.floor(targetBlockSize / penWidth) + 1;
+			let penWidth = PEN_WIDTH;
+			if (PEN_WIDTH > targetBlockSize) {
+				penWidth = targetBlockSize;
+				console.warn(
+					'penWidth (',
+					penWidth,
+					') exceeds targetBlockSize (',
+					targetBlockSize,
+					'), setting to targetBlockSize'
+				);
+			}
+			const lines = Math.ceil(targetBlockSize / penWidth);
 			let lineHeight = targetBlockSize / lines;
 			if (lineHeight < 0) {
 				lineHeight = targetBlockSize;
@@ -235,7 +245,8 @@ async function sketch(p: paper.PaperScope) {
 						to: [rectangle.bounds.x + rectangle.bounds.width - penWidth / 2, y],
 						strokeColor: 'black',
 						strokeWidth: penWidth,
-						opacity: 0.5
+						opacity: 0.5,
+						strokeCap: 'round'
 					});
 				}
 				// last line, start from bottom
@@ -245,32 +256,37 @@ async function sketch(p: paper.PaperScope) {
 					to: [rectangle.bounds.x + rectangle.bounds.width - penWidth / 2, y],
 					strokeColor: 'black',
 					strokeWidth: penWidth,
-					opacity: 0.5
+					opacity: 0.5,
+					strokeCap: 'round'
 				});
-				// add vertical lines at the ends
-				new p.Path.Line({
-					from: [rectangle.bounds.x + penWidth / 2, rectangle.bounds.y + penWidth / 2],
-					to: [
-						rectangle.bounds.x + penWidth / 2,
-						rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
-					],
-					strokeColor: 'black',
-					strokeWidth: penWidth,
-					opacity: 0.5
-				});
-				new p.Path.Line({
-					from: [
-						rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
-						rectangle.bounds.y + penWidth / 2
-					],
-					to: [
-						rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
-						rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
-					],
-					strokeColor: 'black',
-					strokeWidth: penWidth,
-					opacity: 0.5
-				});
+				if (lines > 1) {
+					// add vertical lines at the ends
+					new p.Path.Line({
+						from: [rectangle.bounds.x + penWidth / 2, rectangle.bounds.y + penWidth / 2],
+						to: [
+							rectangle.bounds.x + penWidth / 2,
+							rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
+						],
+						strokeColor: 'black',
+						strokeWidth: penWidth,
+						opacity: 0.5,
+						strokeCap: 'round'
+					});
+					new p.Path.Line({
+						from: [
+							rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
+							rectangle.bounds.y + penWidth / 2
+						],
+						to: [
+							rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
+							rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
+						],
+						strokeColor: 'black',
+						strokeWidth: penWidth,
+						opacity: 0.5,
+						strokeCap: 'round'
+					});
+				}
 				rectangle.remove();
 			}
 
@@ -278,46 +294,52 @@ async function sketch(p: paper.PaperScope) {
 				for (let l = 0; l < lines - 1; l++) {
 					const x = rectangle.bounds.left + l * lineHeight + penWidth / 2;
 					new p.Path.Line({
-						from: [x, rectangle.bounds.y],
-						to: [x, rectangle.bounds.y + rectangle.bounds.height],
+						from: [x, rectangle.bounds.y + penWidth / 2],
+						to: [x, rectangle.bounds.y + rectangle.bounds.height - penWidth / 2],
 						strokeColor: 'black',
 						strokeWidth: penWidth,
-						opacity: 0.5
+						opacity: 0.5,
+						strokeCap: 'round'
 					});
 				}
 				// last line, start from right
 				const x = rectangle.bounds.left + rectangle.bounds.width - penWidth / 2;
 				new p.Path.Line({
-					from: [x, rectangle.bounds.y],
-					to: [x, rectangle.bounds.y + rectangle.bounds.height],
+					from: [x, rectangle.bounds.y + penWidth / 2],
+					to: [x, rectangle.bounds.y + rectangle.bounds.height - penWidth / 2],
 					strokeColor: 'black',
 					strokeWidth: penWidth,
-					opacity: 0.5
+					opacity: 0.5,
+					strokeCap: 'round'
 				});
-				// add horizontal lines at the ends
-				new p.Path.Line({
-					from: [rectangle.bounds.x + penWidth / 2, rectangle.bounds.y + penWidth / 2],
-					to: [
-						rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
-						rectangle.bounds.y + penWidth / 2
-					],
-					strokeColor: 'black',
-					strokeWidth: penWidth,
-					opacity: 0.5
-				});
-				new p.Path.Line({
-					from: [
-						rectangle.bounds.x + penWidth / 2,
-						rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
-					],
-					to: [
-						rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
-						rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
-					],
-					strokeColor: 'black',
-					strokeWidth: penWidth,
-					opacity: 0.5
-				});
+				if (lines > 1) {
+					// add horizontal lines at the ends
+					new p.Path.Line({
+						from: [rectangle.bounds.x + penWidth / 2, rectangle.bounds.y + penWidth / 2],
+						to: [
+							rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
+							rectangle.bounds.y + penWidth / 2
+						],
+						strokeColor: 'black',
+						strokeWidth: penWidth,
+						opacity: 0.5,
+						strokeCap: 'round'
+					});
+					new p.Path.Line({
+						from: [
+							rectangle.bounds.x + penWidth / 2,
+							rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
+						],
+						to: [
+							rectangle.bounds.x + rectangle.bounds.width - penWidth / 2,
+							rectangle.bounds.y + rectangle.bounds.height - penWidth / 2
+						],
+						strokeColor: 'black',
+						strokeWidth: penWidth,
+						opacity: 0.5,
+						strokeCap: 'round'
+					});
+				}
 				rectangle.remove();
 			}
 
