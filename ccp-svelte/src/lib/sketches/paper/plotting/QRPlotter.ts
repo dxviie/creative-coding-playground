@@ -158,12 +158,13 @@ async function sketch(p: paper.PaperScope) {
 			);
 			for (const rectangle of groupedRects) {
 				for (let l = 0; l < lines; l++) {
-					const y = rectangle.bounds.y + PEN_WIDTH_PT / 2 + l * lineHeight;
+					const y = rectangle.bounds.y + l * lineHeight;
 					new p.Path.Line({
-						from: [rectangle.bounds.x + PEN_WIDTH / 2, y],
-						to: [rectangle.bounds.x + rectangle.bounds.width - PEN_WIDTH / 2, y],
+						from: [rectangle.bounds.x, y],
+						to: [rectangle.bounds.x + rectangle.bounds.width, y],
 						strokeColor: 'black',
-						strokeWidth: lineHeight
+						strokeWidth: PEN_WIDTH_PT,
+						opacity: 0.5
 					});
 					rectangle.remove();
 				}
