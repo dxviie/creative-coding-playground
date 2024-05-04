@@ -12,7 +12,7 @@ const HOR_COLOR = 'orange';
 const VERT_COLOR = 'green';
 const ALLOW_OVERLAP = true; // horizontal & vertical blocks start from the full set of blocks
 
-function hasBlockAt(blocks: paper.Path.Rectangle[], point: paper.Point): boolean {
+function hasBlockAt(blocks: paper.Path.Rectangle[], point: paper.PointLike): boolean {
 	return blocks.some((block) => block.contains(point));
 }
 
@@ -188,7 +188,13 @@ async function sketch(p: paper.PaperScope) {
 						endY = y;
 					} else {
 						if (startY >= 0 && endY >= 0) {
-							if (startY !== endY || !ALLOW_OVERLAP) {
+							if (
+								startY !== endY ||
+								!hasBlockAt(horizontalRectangles, [
+									x * targetBlockSize + targetBlockSize / 2,
+									startY * targetBlockSize + targetBlockSize / 2
+								])
+							) {
 								const r = new p.Path.Rectangle({
 									from: [x * targetBlockSize, startY * targetBlockSize],
 									to: [(x + 1) * targetBlockSize, (endY + 1) * targetBlockSize],
@@ -203,7 +209,13 @@ async function sketch(p: paper.PaperScope) {
 					}
 				}
 				if (startY >= 0 && endY >= 0) {
-					if (startY !== endY || !ALLOW_OVERLAP) {
+					if (
+						startY !== endY ||
+						!hasBlockAt(horizontalRectangles, [
+							x * targetBlockSize + targetBlockSize / 2,
+							startY * targetBlockSize + targetBlockSize / 2
+						])
+					) {
 						const r = new p.Path.Rectangle({
 							from: [x * targetBlockSize, startY * targetBlockSize],
 							to: [(x + 1) * targetBlockSize, (endY + 1) * targetBlockSize],
