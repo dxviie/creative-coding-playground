@@ -58,22 +58,23 @@ function drawB(p: paper.PaperScope, position: paper.Point, size: number) {
 	return letterB;
 }
 
-function drawH(p: paper.PaperScope, position: paper.Point, size: number) {
+function drawH(p: paper.PaperScope, position: paper.Point, size: number, horScale = 0.85) {
+	const sizeX = size * horScale;
 	const letterH = new p.CompoundPath({
 		children: [
 			new p.Path.Line(position, new p.Point(position.x, position.y + size)),
 			new p.Path.Line(
 				new p.Point(position.x, position.y + size / 2),
-				new p.Point(position.x + size, position.y + size / 2)
+				new p.Point(position.x + sizeX, position.y + size / 2)
 			),
 			new p.Path.Line(
-				new p.Point(position.x + size, position.y),
-				new p.Point(position.x + size, position.y + size)
-			),
-			new p.Path.Line(
-				new p.Point(position.x + size / 2, position.y + size * 0.8),
-				new p.Point(position.x + size / 2, position.y + size * 1.6)
+				new p.Point(position.x + sizeX, position.y),
+				new p.Point(position.x + sizeX, position.y + size)
 			)
+			// new p.Path.Line(
+			// 	new p.Point(position.x + size / 2, position.y + size * 0.8),
+			// 	new p.Point(position.x + size / 2, position.y + size * 1.6)
+			// )
 		],
 		strokeColor: 'red',
 		strokeWidth: 1
@@ -167,79 +168,103 @@ function drawW(p: paper.PaperScope, position: paper.Point, size: number) {
 	return letterW;
 }
 
+const writeBeHere = (p: paper.PaperScope, size: number, position: paper.Point) => {
+	const scale = size > 2 ? 0.75 : 0.6;
+	const actualSize = size * scale;
+	const b = drawB(p, position, actualSize);
+	const e = drawE(p, new p.Point(position.x + size, position.y), actualSize);
+	const h = drawH(p, new p.Point(position.x + 2 * size, position.y), actualSize);
+	const e2 = drawE(p, new p.Point(position.x + 3 * size, position.y), actualSize);
+	const r = drawR(p, new p.Point(position.x + 4 * size, position.y), actualSize);
+	const e3 = drawE(p, new p.Point(position.x + 5 * size, position.y), actualSize);
+};
+
+const fillRectWithWords = (
+	p: paper.PaperScope,
+	rect: paper.Path.Rectangle,
+	size: number,
+	words: string,
+	staggerFraction = 0
+) => {};
+
+function findChildByName(item, name) {
+	if (item.name === name) return item;
+	if (item.children) {
+		for (var i = 0; i < item.children.length; i++) {
+			var result = findChildByName(item.children[i], name);
+			if (result) return result;
+		}
+	}
+	return null;
+}
+
 function sketch(p: paper.PaperScope) {
 	const paper = new p.Path.Rectangle({
 		point: [0, 0],
 		size: [WIDTH, HEIGHT],
-		strokeColor: 'black'
+		strokeColor: 'black',
+		opacity: 0.5
 	});
-	// const img = new p.Raster('beherenow_b.png');
-	// console.log(img);
-	// img.fitBounds(paper.bounds);
-	//
-	// img.onLoad = () => {
-	// 	console.log('img loaded');
-	// 	const resolution = 10;
-	// 	const step = WIDTH / resolution;
-	// 	for (let x = 0; x < WIDTH; x += step) {
-	// 		for (let y = 0; y < HEIGHT; y += step) {
-	// 			const clr = img.getAverageColor(new p.Point(x, y));
-	// 			if (clr && clr.gray < 0.5) {
-	// 				const e = drawE(p, new p.Point(x, y), step);
-	// 				e.scale(0.9);
-	// 				paper.addChild(e);
-	// 			}
-	// 		}
-	// 	}
-	// 	img.opacity = 0;
-	// 	console.log('done');
-	// };
+	p.project.importSVG('beherenow-pin-shape-export.svg', {
+		expandShapes: true,
+		insert: true,
+		applyMatrix: false,
+		onLoad: (svg) => {
+			console.debug('imported', svg);
+			const scaleFactor = 0.5;
+			// Scale the SVG while maintaining aspect ratio
+			svg.scale(scaleFactor);
+			// Center the SVG in the view
+			svg.position = paper.bounds.center;
+			p.project.view.play();
+		}
+	});
 
-	const writeBeHereNow = (size: number, position: paper.Point) => {
-		const scale = size > 2 ? 0.75 : 0.6;
-		const b = drawB(p, position, size);
-		b.scale(scale);
-		const e = drawE(p, new p.Point(position.x + size, position.y), size);
-		e.scale(scale);
-		const h = drawH(p, new p.Point(position.x + 2 * size, position.y), size);
-		h.scale(scale);
-		const e2 = drawE(p, new p.Point(position.x + 3 * size, position.y), size);
-		e2.scale(scale);
-		const r = drawR(p, new p.Point(position.x + 4 * size, position.y), size);
-		r.scale(scale);
-		const e3 = drawE(p, new p.Point(position.x + 5 * size, position.y), size);
-		e3.scale(scale);
-		const n = drawN(p, new p.Point(position.x + 6 * size, position.y), size);
-		n.scale(scale);
-		const o = drawO(p, new p.Point(position.x + 7 * size, position.y), size);
-		o.scale(scale);
-		const w = drawW(p, new p.Point(position.x + 8 * size, position.y), size);
-		w.scale(scale);
-	};
+	let pin;
+	let pinCenter;
 
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
 		console.debug('::onFrame::', 'time', event.time, 'delta', event.delta, 'count', event.count);
-		// write beherenow in varying sizes
-		let mm = 5;
-		let offset = 10;
-		for (let i = mm; i > 4.9; ) {
-			for (let j = 0; j < 15; j++) {
-				console.log('writing be here now', i, offset, 'j', j);
-				const pointSize = i * MM_TO_PT;
-				const wordPointSize = pointSize * 9;
-				const times = Math.floor(WIDTH / wordPointSize);
-				for (let t = 0; t < times; t++) {
-					writeBeHereNow(pointSize, new p.Point(10 + t * wordPointSize, 10 + offset));
-				}
-				offset += pointSize + 0.1 * MM_TO_PT;
+
+		const items = p.project.activeLayer.getItems({});
+		if (items.length > 0) {
+			// p.project.clear();
+			console.debug('items loaded:', items.length, items);
+			pin = findChildByName(p.project.activeLayer, 'pin');
+			pinCenter = findChildByName(p.project.activeLayer, 'pin-center');
+			console.debug('pin', pin, 'pinCenter', pinCenter);
+			if (pin && pinCenter) {
+				pin.fillColor = 'transparent';
+				pin.strokeColor = 'red';
+				pin.strokeWidth = 1;
+				pinCenter.fillColor = 'transparent';
+				pinCenter.strokeColor = 'red';
+				pinCenter.strokeWidth = 1;
+				console.debug('pin bounds', pin.bounds, 'pinCenter bounds', pinCenter.bounds);
+				console.debug('pin segments', pin.segments);
+				new p.Path.Rectangle({
+					point: [pin.bounds.x, pin.bounds.y],
+					size: [pin.bounds.width, pin.bounds.height],
+					strokeColor: 'blue',
+					strokeWidth: 1
+				});
 			}
-			i -= 0.1;
 		}
 
-		p.project.view.scale(1.3);
-		p.project.view.translate([p.project.view.bounds.width / 3, p.project.view.bounds.height / 4.5]);
-
 		p.project.view.pause();
+	};
+	// p.project.view.scale(1.3);
+	// p.project.view.translate([p.project.view.bounds.width / 3, p.project.view.bounds.height / 4.5]);
+
+	p.project.view.onMouseMove = (event) => {
+		if (pin) {
+			console.debug('contains', pin.contains(event.point));
+		}
+		p.project.activeLayer.selected = false;
+		if (event.item) {
+			console.debug('::onMouseMove::', 'event', event, 'event.item', event.item);
+			event.item.selected = true;
+		}
 	};
 
 	p.project.view.onClick = (event: paper.MouseEvent) => {

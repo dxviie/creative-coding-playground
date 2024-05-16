@@ -1,6 +1,6 @@
 <script lang="ts">
 	import PaperSketch from '$lib/components/PaperSketch.svelte';
-	import { QRPlotter } from '$lib/sketches/paper/plotting/QRPlotter';
+	import { BeHereNow } from '$lib/sketches/paper/plotting/BeHereNow';
 
 	/*
 			TODO - sketch selection
@@ -11,4 +11,5 @@
 
 <!--<P5Sketch sketch={WaterRipples} />-->
 <!--<PaperSketch sketch={TestPatterns} />-->
-<PaperSketch sketch={QRPlotter} />
+<PaperSketch sketch={BeHereNow} />
+<!--<PaperSketch sketch={QRPlotter} />-->
