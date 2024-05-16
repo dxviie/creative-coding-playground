@@ -198,6 +198,42 @@ function findChildByName(item, name) {
 	return null;
 }
 
+function drawPathForSegments(p: paper.PaperScope, segments) {
+	var path = new p.Path();
+	segments.forEach(function (segment) {
+		path.add(segment);
+	});
+	path.closed = true;
+	path.strokeColor = 'orangered';
+	path.strokeWidth = 1;
+}
+
+function drawCustomRectangleAround(p: paper.PaperScope, item) {
+	drawPathForSegments(p, item.segments);
+	var segments = item.segments;
+	var minX = Infinity,
+		minY = Infinity,
+		maxX = -Infinity,
+		maxY = -Infinity;
+
+	segments.forEach(function (segment) {
+		var point = segment.point;
+		if (point.x < minX) minX = point.x;
+		if (point.y < minY) minY = point.y;
+		if (point.x > maxX) maxX = point.x;
+		if (point.y > maxY) maxY = point.y;
+	});
+
+	var rectangle = new p.Path.Rectangle({
+		point: [minX, minY],
+		size: [maxX - minX, maxY - minY],
+		strokeColor: 'green',
+		strokeWidth: 1
+	});
+	// Optionally, you can send the rectangle to the back to ensure it doesn't cover the shape
+	// rectangle.sendToBack();
+}
+
 function sketch(p: paper.PaperScope) {
 	const paper = new p.Path.Rectangle({
 		point: [0, 0],
@@ -205,56 +241,88 @@ function sketch(p: paper.PaperScope) {
 		strokeColor: 'black',
 		opacity: 0.5
 	});
-	p.project.importSVG('beherenow-pin-shape-export.svg', {
+	p.project.importSVG('beherenow-pin-shape-export-c.svg', {
 		expandShapes: true,
 		insert: true,
 		applyMatrix: false,
 		onLoad: (svg) => {
 			console.debug('imported', svg);
-			const scaleFactor = 0.5;
-			// Scale the SVG while maintaining aspect ratio
-			svg.scale(scaleFactor);
-			// Center the SVG in the view
-			svg.position = paper.bounds.center;
 			p.project.view.play();
 		}
 	});
 
-	let pin;
-	let pinCenter;
+	let pin: null | paper.Path = null;
+	let pinBounds: null | paper.Path.Rectangle = null;
+	let pinCenter: null | paper.Path = null;
+	let pinCenterBounds: null | paper.Path.Rectangle = null;
 
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
 		console.debug('::onFrame::', 'time', event.time, 'delta', event.delta, 'count', event.count);
 
 		const items = p.project.activeLayer.getItems({});
 		if (items.length > 0) {
-			// p.project.clear();
 			console.debug('items loaded:', items.length, items);
 			pin = findChildByName(p.project.activeLayer, 'pin');
 			pinCenter = findChildByName(p.project.activeLayer, 'pin-center');
 			console.debug('pin', pin, 'pinCenter', pinCenter);
-			if (pin && pinCenter) {
+
+			if (pin) {
 				pin.fillColor = 'transparent';
 				pin.strokeColor = 'red';
 				pin.strokeWidth = 1;
-				pinCenter.fillColor = 'transparent';
-				pinCenter.strokeColor = 'red';
-				pinCenter.strokeWidth = 1;
-				console.debug('pin bounds', pin.bounds, 'pinCenter bounds', pinCenter.bounds);
+				console.debug('pin bounds', pin.bounds);
 				console.debug('pin segments', pin.segments);
-				new p.Path.Rectangle({
+				pinBounds = new p.Path.Rectangle({
 					point: [pin.bounds.x, pin.bounds.y],
 					size: [pin.bounds.width, pin.bounds.height],
 					strokeColor: 'blue',
 					strokeWidth: 1
 				});
 			}
+			if (pinCenter) {
+				console.debug('pinCenter bounds', pinCenter.bounds);
+				pinCenter.fillColor = 'transparent';
+				pinCenter.strokeColor = 'red';
+				pinCenter.strokeWidth = 1;
+				pinCenterBounds = new p.Path.Rectangle({
+					point: [pinCenter.bounds.x, pinCenter.bounds.y],
+					size: [pinCenter.bounds.width, pinCenter.bounds.height],
+					strokeColor: 'blue',
+					strokeWidth: 1
+				});
+			}
+		}
+
+		if (pin && pinCenter && pinBounds && pinCenterBounds) {
+			const scale = 0.5;
+			const center = new p.Point(
+				pinCenterBounds.bounds.x + pinCenterBounds.bounds.width / 2,
+				pinCenterBounds.bounds.y + pinCenterBounds.bounds.height / 2
+			);
+			pin.scale(scale, center);
+			pinBounds.scale(scale, center);
+			pinCenterBounds.scale(scale, center);
+			pinCenter.scale(scale, center);
+			// calculate the difference between the paper center and the pin center
+			const diff = new p.Point(
+				paper.bounds.center.x - center.x,
+				paper.bounds.center.y - center.y - 65
+			);
+			const translate = new p.Point(-pinBounds.bounds.width / 4, -pinBounds.bounds.height / 4);
+			pin.translate(diff);
+			pinBounds.translate(diff);
+			pinCenter.translate(diff);
+			pinCenterBounds.translate(diff);
 		}
 
 		p.project.view.pause();
 	};
-	// p.project.view.scale(1.3);
-	// p.project.view.translate([p.project.view.bounds.width / 3, p.project.view.bounds.height / 4.5]);
+	// p.project.view.scale(0.6);
+
+	p.project.view.translate([
+		(p.project.view.bounds.width - paper.bounds.width) / 2,
+		(p.project.view.bounds.height - paper.bounds.height) / 2
+	]);
 
 	p.project.view.onMouseMove = (event) => {
 		if (pin) {
