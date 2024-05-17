@@ -18,6 +18,10 @@ const DEBUGSTROKE = DEBUG ? 3 : 0;
 // 	const e3 = drawE(p, new p.Point(position.x + 5 * size, position.y), actualSize);
 // };
 
+function lerp(value: number, inMin: number, inMax: number, outMin: number, outMax: number) {
+	return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+}
+
 const fillRectWithWords = (
 	p: paper.PaperScope,
 	rect: paper.Path.Rectangle,
@@ -32,11 +36,16 @@ const fillRectWithWords = (
 	let startIndex = 0;
 	const location = new p.Point(rect.bounds.x, rect.bounds.y);
 	let actualSize = size * 0.75;
+	let fillIn = true;
 	while (rect.contains(location)) {
+		const distance = pinCenter.bounds.center.getDistance(location);
 		if (pinCenter.contains(location)) {
 			actualSize = size * 0.65;
+			fillIn = false;
 		} else {
-			actualSize = size * 0.8;
+			actualSize =
+				size * lerp(distance, pinCenter.bounds.height / 2, rect.bounds.height / 2, 0.7, 0.9);
+			fillIn = true;
 		}
 		switch (letters[letterIndex]) {
 			case 'b':
@@ -46,10 +55,10 @@ const fillRectWithWords = (
 				layer.addChild(drawE(p, location, actualSize));
 				break;
 			case 'h':
-				layer.addChild(drawH(p, location, actualSize));
+				layer.addChild(drawH(p, location, actualSize, fillIn));
 				break;
 			case 'r':
-				layer.addChild(drawR(p, location, actualSize));
+				layer.addChild(drawR(p, location, actualSize, fillIn));
 				break;
 			case 'n':
 				layer.addChild(drawN(p, location, actualSize));
@@ -179,7 +188,7 @@ function sketch(p: paper.PaperScope) {
 			pinCenter.translate(diff);
 			pinCenterBounds.translate(diff);
 
-			fillRectWithWords(p, pinBounds, 7, 'behere', letterLayer, pinCenter, 1 / 6);
+			fillRectWithWords(p, pinBounds, 8.5, 'behere', letterLayer, pinCenter, 1 / 6);
 			// p.project.view.scale(2.5);
 
 			// go over items in letterLayer and remove anything that's not inside the pin
@@ -259,13 +268,17 @@ function drawE(p: paper.PaperScope, position: paper.Point, size: number) {
 }
 
 function drawB(p: paper.PaperScope, position: paper.Point, size: number) {
-	const topPct = 0.55;
-	const midPct = 0.55;
-	const botPct = 0.55;
+	const topPct = 1 - 1 / 3;
+	const midPct = 1 - 1 / 3;
+	const botPct = 1 - 1 / 3;
+	const horX = position.x + size / 16;
 	const letterB = new p.CompoundPath({
 		children: [
-			new p.Path.Line(position, new p.Point(position.x, position.y + size)),
-			new p.Path.Line(position, new p.Point(position.x + size * topPct, position.y)),
+			new p.Path.Line(new p.Point(horX, position.y), new p.Point(horX, position.y + size)),
+			new p.Path.Line(
+				new p.Point(horX, position.y),
+				new p.Point(position.x + size * topPct, position.y)
+			),
 			new p.Path.Arc(
 				new p.Point(position.x + size * topPct, position.y),
 				new p.Point(position.x + size * ((topPct + midPct) / 2 + 0.01), position.y + size / 2),
@@ -273,8 +286,8 @@ function drawB(p: paper.PaperScope, position: paper.Point, size: number) {
 			),
 
 			new p.Path.Line(
-				new p.Point(position.x, position.y + size / 2),
-				new p.Point(position.x + size * midPct, position.y + size / 2)
+				new p.Point(horX, position.y + size / 2),
+				new p.Point(horX + size * midPct, position.y + size / 2)
 			),
 			new p.Path.Arc(
 				new p.Point(position.x + size * midPct, position.y + size / 2),
@@ -282,8 +295,8 @@ function drawB(p: paper.PaperScope, position: paper.Point, size: number) {
 				new p.Point(position.x + size * botPct, position.y + size)
 			),
 			new p.Path.Line(
-				new p.Point(position.x, position.y + size),
-				new p.Point(position.x + size * botPct, position.y + size)
+				new p.Point(horX, position.y + size),
+				new p.Point(horX + size * botPct, position.y + size)
 			)
 		],
 		strokeColor: 'red',
@@ -292,37 +305,53 @@ function drawB(p: paper.PaperScope, position: paper.Point, size: number) {
 	return letterB;
 }
 
-function drawH(p: paper.PaperScope, position: paper.Point, size: number, horScale = 0.85) {
+function drawH(
+	p: paper.PaperScope,
+	position: paper.Point,
+	size: number,
+	fillIn: boolean,
+	horScale = 0.85
+) {
 	const sizeX = size * horScale;
+	const padding = (size - sizeX) / 2;
 	const horPart = sizeX / 4;
 	const vertPart = size / 8;
 	const letterH = new p.CompoundPath({
 		children: [
-			new p.Path.Line(position, new p.Point(position.x, position.y + size)),
 			new p.Path.Line(
-				new p.Point(position.x, position.y + size / 2),
-				new p.Point(position.x + sizeX, position.y + size / 2)
+				new p.Point(position.x + padding, position.y),
+				new p.Point(position.x + padding, position.y + size)
 			),
 			new p.Path.Line(
-				new p.Point(position.x + sizeX, position.y),
-				new p.Point(position.x + sizeX, position.y + size)
+				new p.Point(position.x + padding, position.y + size / 2),
+				new p.Point(position.x + padding + sizeX, position.y + size / 2)
 			),
 			new p.Path.Line(
-				new p.Point(position.x + horPart * 2, position.y - vertPart),
-				new p.Point(position.x + horPart * 2, position.y + vertPart)
-			),
-			new p.Path.Line(
-				new p.Point(position.x + horPart * 2, position.y + size - vertPart),
-				new p.Point(position.x + horPart * 2, position.y + size + vertPart)
+				new p.Point(position.x + padding + sizeX, position.y),
+				new p.Point(position.x + padding + sizeX, position.y + size)
 			)
 		],
 		strokeColor: 'red',
 		strokeWidth: 1
 	});
+	if (fillIn) {
+		letterH.addChild(
+			new p.Path.Line(
+				new p.Point(position.x + padding + horPart * 2, position.y - vertPart),
+				new p.Point(position.x + padding + horPart * 2, position.y + vertPart)
+			)
+		);
+		letterH.addChild(
+			new p.Path.Line(
+				new p.Point(position.x + padding + horPart * 2, position.y + size - vertPart),
+				new p.Point(position.x + padding + horPart * 2, position.y + size + vertPart)
+			)
+		);
+	}
 	return letterH;
 }
 
-function drawR(p: paper.PaperScope, position: paper.Point, size: number) {
+function drawR(p: paper.PaperScope, position: paper.Point, size: number, fillIn = true) {
 	const topPct = 0.75;
 	const midPct = 0.75;
 	const horPart = size / 4;
@@ -345,15 +374,19 @@ function drawR(p: paper.PaperScope, position: paper.Point, size: number) {
 				new p.Point(position.x + size * midPct, position.y + size / 2),
 				new p.Point(position.x + size, position.y + size),
 				new p.Point(position.x + size, position.y + size)
-			),
-			new p.Path.Line(
-				new p.Point(position.x + horPart * 2, position.y + size - vertPart),
-				new p.Point(position.x + horPart * 2, position.y + size + vertPart)
 			)
 		],
 		strokeColor: 'red',
 		strokeWidth: 1
 	});
+	if (fillIn) {
+		letterR.addChild(
+			new p.Path.Line(
+				new p.Point(position.x + horPart * 2, position.y + size - vertPart),
+				new p.Point(position.x + horPart * 2, position.y + size + vertPart)
+			)
+		);
+	}
 	return letterR;
 }
 
