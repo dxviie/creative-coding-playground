@@ -113,7 +113,7 @@ function sketch(p: paper.PaperScope) {
 	const size = 20;
 
 	/******************************************************************
-	 * Animation
+	 * onFrame
 	 ******************************************************************/
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
 		console.debug('::onFrame::', 'time', event.time, 'delta', event.delta, 'count', event.count);
@@ -153,6 +153,7 @@ function sketch(p: paper.PaperScope) {
 			}
 		}
 
+		// draw the letters
 		if (pin && pinCenter && pinBounds && pinCenterBounds) {
 			const scale = 0.5;
 			const center = new p.Point(
