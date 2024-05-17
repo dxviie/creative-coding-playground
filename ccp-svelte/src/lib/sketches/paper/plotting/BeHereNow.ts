@@ -5,7 +5,7 @@ const WIDTH = 186 * MM_TO_PT;
 const HEIGHT = 190 * MM_TO_PT;
 
 const DEBUG = true;
-const DEBUGSTROKE = DEBUG ? 1 : 0;
+const DEBUGSTROKE = DEBUG ? 3 : 0;
 
 // const writeBeHere = (p: paper.PaperScope, size: number, position: paper.Point) => {
 // 	const scale = size > 2 ? 0.75 : 0.6;
@@ -23,8 +23,50 @@ const fillRectWithWords = (
 	rect: paper.Path.Rectangle,
 	size: number,
 	words: string,
+	layer: paper.Layer,
 	staggerFraction = 0
-) => {};
+) => {
+	const letters = words.split('');
+	let letterIndex = 0;
+	let startIndex = 0;
+	const location = new p.Point(rect.bounds.x, rect.bounds.y);
+	const actualSize = size * 0.75;
+	while (rect.contains(location)) {
+		switch (letters[letterIndex]) {
+			case 'b':
+				layer.addChild(drawB(p, location, actualSize));
+				break;
+			case 'e':
+				layer.addChild(drawE(p, location, actualSize));
+				break;
+			case 'h':
+				layer.addChild(drawH(p, location, actualSize));
+				break;
+			case 'r':
+				layer.addChild(drawR(p, location, actualSize));
+				break;
+			case 'n':
+				layer.addChild(drawN(p, location, actualSize));
+				break;
+			case 'o':
+				layer.addChild(drawO(p, location, actualSize));
+				break;
+			case 'w':
+				layer.addChild(drawW(p, location, actualSize));
+				break;
+			default:
+				console.error('unknown letter', letters[letterIndex]);
+		}
+		location.x += size;
+		letterIndex = (letterIndex + 1) % letters.length;
+		if (location.x > rect.bounds.x + rect.bounds.width) {
+			location.x = rect.bounds.x;
+			location.y += size;
+			letterIndex = (startIndex + Math.floor(staggerFraction * letters.length)) % letters.length;
+			startIndex = letterIndex;
+		}
+	}
+};
 
 function findChildByName<T extends paper.Item>(item: paper.Item, name: string): T | null {
 	if (item.name === name) return item as T;
@@ -66,6 +108,10 @@ function sketch(p: paper.PaperScope) {
 	let pinCenter: null | paper.Path = null;
 	let pinCenterBounds: null | paper.Path.Rectangle = null;
 
+	const letterLayer = new p.Layer({ name: 'letters' });
+	const boundsLayer = new p.Layer({ name: 'bounds' });
+	const size = 20;
+
 	/******************************************************************
 	 * Animation
 	 ******************************************************************/
@@ -81,7 +127,7 @@ function sketch(p: paper.PaperScope) {
 			// draw shapes and setup bounding boxes
 			if (pin && !pinBounds) {
 				pin.fillColor = 'transparent' as never;
-				pin.strokeColor = 'red' as never;
+				pin.strokeColor = 'green' as never;
 				pin.strokeWidth = DEBUGSTROKE;
 				pinBounds = new p.Path.Rectangle({
 					point: [pin.bounds.x, pin.bounds.y],
@@ -89,10 +135,12 @@ function sketch(p: paper.PaperScope) {
 					strokeColor: 'blue',
 					strokeWidth: DEBUGSTROKE
 				});
+				pin.addTo(boundsLayer);
+				pinBounds.addTo(boundsLayer);
 			}
 			if (pinCenter && !pinCenterBounds) {
 				pinCenter.fillColor = 'transparent' as never;
-				pinCenter.strokeColor = 'red' as never;
+				pinCenter.strokeColor = 'green' as never;
 				pinCenter.strokeWidth = DEBUGSTROKE;
 				pinCenterBounds = new p.Path.Rectangle({
 					point: [pinCenter.bounds.x, pinCenter.bounds.y],
@@ -100,6 +148,8 @@ function sketch(p: paper.PaperScope) {
 					strokeColor: 'blue',
 					strokeWidth: DEBUGSTROKE
 				});
+				pinCenter.addTo(boundsLayer);
+				pinCenterBounds.addTo(boundsLayer);
 			}
 		}
 
@@ -122,6 +172,32 @@ function sketch(p: paper.PaperScope) {
 			pinBounds.translate(diff);
 			pinCenter.translate(diff);
 			pinCenterBounds.translate(diff);
+
+			fillRectWithWords(p, pinBounds, 7, 'behere', letterLayer, 1 / 6);
+			p.project.view.scale(1.3);
+
+			// go over items in letterLayer and remove anything that's not inside the pin
+			// let's do this recursively and only work in items that have bounds
+
+			const toRemove: paper.Item[] = [];
+			letterLayer.children.forEach((item) => {
+				if (pin && item.bounds.center) {
+					if (!pin.contains(item.bounds.center)) {
+						toRemove.push(item);
+					}
+				} else {
+					// if (item.children) {
+					// 	item.children.forEach((child) => {
+					// 		checkAndRemoveItems(child, pin);
+					// 	});
+					// }
+					console.debug('no center', item.bounds);
+				}
+			});
+			console.debug('toRemove', toRemove);
+			toRemove.forEach((item) => {
+				item.remove();
+			});
 		}
 		p.project.view.pause();
 	};
@@ -184,9 +260,9 @@ function drawE(p: paper.PaperScope, position: paper.Point, size: number) {
 }
 
 function drawB(p: paper.PaperScope, position: paper.Point, size: number) {
-	const topPct = 0.75;
-	const midPct = 0.75;
-	const botPct = 0.75;
+	const topPct = 0.55;
+	const midPct = 0.55;
+	const botPct = 0.55;
 	const letterB = new p.CompoundPath({
 		children: [
 			new p.Path.Line(position, new p.Point(position.x, position.y + size)),
@@ -219,6 +295,8 @@ function drawB(p: paper.PaperScope, position: paper.Point, size: number) {
 
 function drawH(p: paper.PaperScope, position: paper.Point, size: number, horScale = 0.85) {
 	const sizeX = size * horScale;
+	const horPart = sizeX / 4;
+	const vertPart = size / 4;
 	const letterH = new p.CompoundPath({
 		children: [
 			new p.Path.Line(position, new p.Point(position.x, position.y + size)),
@@ -229,11 +307,15 @@ function drawH(p: paper.PaperScope, position: paper.Point, size: number, horScal
 			new p.Path.Line(
 				new p.Point(position.x + sizeX, position.y),
 				new p.Point(position.x + sizeX, position.y + size)
+			),
+			new p.Path.Line(
+				new p.Point(position.x + horPart * 2, position.y - vertPart),
+				new p.Point(position.x + horPart * 2, position.y + vertPart)
+			),
+			new p.Path.Line(
+				new p.Point(position.x + horPart * 2, position.y + size - vertPart),
+				new p.Point(position.x + horPart * 2, position.y + size + vertPart)
 			)
-			// new p.Path.Line(
-			// 	new p.Point(position.x + size / 2, position.y + size * 0.8),
-			// 	new p.Point(position.x + size / 2, position.y + size * 1.6)
-			// )
 		],
 		strokeColor: 'red',
 		strokeWidth: 1
