@@ -24,14 +24,20 @@ const fillRectWithWords = (
 	size: number,
 	words: string,
 	layer: paper.Layer,
+	pinCenter: paper.Path.Circle,
 	staggerFraction = 0
 ) => {
 	const letters = words.split('');
 	let letterIndex = 0;
 	let startIndex = 0;
 	const location = new p.Point(rect.bounds.x, rect.bounds.y);
-	const actualSize = size * 0.75;
+	let actualSize = size * 0.75;
 	while (rect.contains(location)) {
+		if (pinCenter.contains(location)) {
+			actualSize = size * 0.65;
+		} else {
+			actualSize = size * 0.8;
+		}
 		switch (letters[letterIndex]) {
 			case 'b':
 				layer.addChild(drawB(p, location, actualSize));
@@ -110,7 +116,6 @@ function sketch(p: paper.PaperScope) {
 
 	const letterLayer = new p.Layer({ name: 'letters' });
 	const boundsLayer = new p.Layer({ name: 'bounds' });
-	const size = 20;
 
 	/******************************************************************
 	 * onFrame
@@ -174,8 +179,8 @@ function sketch(p: paper.PaperScope) {
 			pinCenter.translate(diff);
 			pinCenterBounds.translate(diff);
 
-			fillRectWithWords(p, pinBounds, 7, 'behere', letterLayer, 1 / 6);
-			p.project.view.scale(1.3);
+			fillRectWithWords(p, pinBounds, 7, 'behere', letterLayer, pinCenter, 1 / 6);
+			// p.project.view.scale(2.5);
 
 			// go over items in letterLayer and remove anything that's not inside the pin
 			// let's do this recursively and only work in items that have bounds
@@ -186,13 +191,6 @@ function sketch(p: paper.PaperScope) {
 					if (!pin.contains(item.bounds.center)) {
 						toRemove.push(item);
 					}
-				} else {
-					// if (item.children) {
-					// 	item.children.forEach((child) => {
-					// 		checkAndRemoveItems(child, pin);
-					// 	});
-					// }
-					console.debug('no center', item.bounds);
 				}
 			});
 			console.debug('toRemove', toRemove);
@@ -297,7 +295,7 @@ function drawB(p: paper.PaperScope, position: paper.Point, size: number) {
 function drawH(p: paper.PaperScope, position: paper.Point, size: number, horScale = 0.85) {
 	const sizeX = size * horScale;
 	const horPart = sizeX / 4;
-	const vertPart = size / 4;
+	const vertPart = size / 8;
 	const letterH = new p.CompoundPath({
 		children: [
 			new p.Path.Line(position, new p.Point(position.x, position.y + size)),
@@ -327,6 +325,8 @@ function drawH(p: paper.PaperScope, position: paper.Point, size: number, horScal
 function drawR(p: paper.PaperScope, position: paper.Point, size: number) {
 	const topPct = 0.75;
 	const midPct = 0.75;
+	const horPart = size / 4;
+	const vertPart = size / 8;
 	const letterR = new p.CompoundPath({
 		children: [
 			new p.Path.Line(position, new p.Point(position.x, position.y + size)),
@@ -345,6 +345,10 @@ function drawR(p: paper.PaperScope, position: paper.Point, size: number) {
 				new p.Point(position.x + size * midPct, position.y + size / 2),
 				new p.Point(position.x + size, position.y + size),
 				new p.Point(position.x + size, position.y + size)
+			),
+			new p.Path.Line(
+				new p.Point(position.x + horPart * 2, position.y + size - vertPart),
+				new p.Point(position.x + horPart * 2, position.y + size + vertPart)
 			)
 		],
 		strokeColor: 'red',
