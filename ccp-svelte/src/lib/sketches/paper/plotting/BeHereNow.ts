@@ -28,7 +28,7 @@ const fillRectWithWords = (
 	size: number,
 	words: string,
 	layer: paper.Layer,
-	pinCenter: paper.Path.Circle,
+	heart: paper.Path.Circle,
 	staggerFraction = 0
 ) => {
 	const letters = words.split('');
@@ -38,13 +38,12 @@ const fillRectWithWords = (
 	let actualSize = size * 0.75;
 	let fillIn = true;
 	while (rect.contains(location)) {
-		const distance = pinCenter.bounds.center.getDistance(location);
-		if (pinCenter.contains(location)) {
+		const distance = heart.bounds.center.getDistance(location);
+		if (heart.contains(location)) {
 			actualSize = size * 0.65;
 			fillIn = false;
 		} else {
-			actualSize =
-				size * lerp(distance, pinCenter.bounds.height / 2, rect.bounds.height / 2, 0.7, 0.9);
+			actualSize = size * lerp(distance, heart.bounds.height / 2, rect.bounds.height / 2, 0.7, 0.9);
 			fillIn = true;
 		}
 		switch (letters[letterIndex]) {
@@ -61,6 +60,7 @@ const fillRectWithWords = (
 				layer.addChild(drawR(p, location, actualSize, fillIn));
 				break;
 			case 'n':
+				console.log('drawing n');
 				layer.addChild(drawN(p, location, actualSize));
 				break;
 			case 'o':
@@ -122,6 +122,9 @@ function sketch(p: paper.PaperScope) {
 	let pinBounds: null | paper.Path.Rectangle = null;
 	let pinCenter: null | paper.Path = null;
 	let pinCenterBounds: null | paper.Path.Rectangle = null;
+	let dot: null | paper.Path.Circle = null;
+	let dotBounds: null | paper.Path.Rectangle = null;
+	let dotCenter: null | paper.Path.Circle = null;
 
 	const letterLayer = new p.Layer({ name: 'letters' });
 	const boundsLayer = new p.Layer({ name: 'bounds' });
@@ -167,8 +170,37 @@ function sketch(p: paper.PaperScope) {
 			}
 		}
 
+		// setup the dot
+		if (!dot && !dotCenter) {
+			const dotSize = 10 * MM_TO_PT;
+
+			const centerPoint = new p.Point(
+				canvas.bounds.x + canvas.bounds.width - dotSize * 1.5,
+				canvas.bounds.y + dotSize * 1.5
+			);
+			dot = new p.Path.Circle({
+				center: centerPoint,
+				radius: dotSize,
+				fillColor: 'transparent',
+				strokeColor: 'green'
+			});
+			dotBounds = new p.Path.Rectangle({
+				point: [dot.bounds.x, dot.bounds.y],
+				size: [dot.bounds.width, dot.bounds.height],
+				fillColor: 'transparent',
+				strokeColor: 'blue',
+				strokeWidth: DEBUGSTROKE
+			});
+			dotCenter = new p.Path.Circle({
+				center: centerPoint,
+				radius: dotSize / 2,
+				fillColor: 'transparent',
+				strokeColor: 'green'
+			});
+		}
+
 		// draw the letters
-		if (pin && pinCenter && pinBounds && pinCenterBounds) {
+		if (pin && pinCenter && pinBounds && pinCenterBounds && dot && dotBounds && dotCenter) {
 			const scale = 0.5;
 			const center = new p.Point(
 				pinCenterBounds.bounds.x + pinCenterBounds.bounds.width / 2,
@@ -188,8 +220,11 @@ function sketch(p: paper.PaperScope) {
 			pinCenter.translate(diff);
 			pinCenterBounds.translate(diff);
 
+			fillRectWithWords(p, dotBounds, 7, 'now', letterLayer, dotCenter, 1 / 3);
 			fillRectWithWords(p, pinBounds, 8.5, 'behere', letterLayer, pinCenter, 1 / 6);
-			// p.project.view.scale(2.5);
+
+			letterLayer.bringToFront();
+			p.project.view.scale(2.5, dot.bounds.center);
 
 			// go over items in letterLayer and remove anything that's not inside the pin
 			// let's do this recursively and only work in items that have bounds
@@ -197,7 +232,7 @@ function sketch(p: paper.PaperScope) {
 			const toRemove: paper.Item[] = [];
 			letterLayer.children.forEach((item) => {
 				if (pin && item.bounds.center) {
-					if (!pin.contains(item.bounds.center)) {
+					if (!pin.contains(item.bounds.center) && !dot?.contains(item.bounds.center)) {
 						toRemove.push(item);
 					}
 				}
