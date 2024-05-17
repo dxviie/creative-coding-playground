@@ -7,16 +7,16 @@ const HEIGHT = 190 * MM_TO_PT;
 const DEBUG = true;
 const DEBUGSTROKE = DEBUG ? 1 : 0;
 
-const writeBeHere = (p: paper.PaperScope, size: number, position: paper.Point) => {
-	const scale = size > 2 ? 0.75 : 0.6;
-	const actualSize = size * scale;
-	const b = drawB(p, position, actualSize);
-	const e = drawE(p, new p.Point(position.x + size, position.y), actualSize);
-	const h = drawH(p, new p.Point(position.x + 2 * size, position.y), actualSize);
-	const e2 = drawE(p, new p.Point(position.x + 3 * size, position.y), actualSize);
-	const r = drawR(p, new p.Point(position.x + 4 * size, position.y), actualSize);
-	const e3 = drawE(p, new p.Point(position.x + 5 * size, position.y), actualSize);
-};
+// const writeBeHere = (p: paper.PaperScope, size: number, position: paper.Point) => {
+// 	const scale = size > 2 ? 0.75 : 0.6;
+// 	const actualSize = size * scale;
+// 	const b = drawB(p, position, actualSize);
+// 	const e = drawE(p, new p.Point(position.x + size, position.y), actualSize);
+// 	const h = drawH(p, new p.Point(position.x + 2 * size, position.y), actualSize);
+// 	const e2 = drawE(p, new p.Point(position.x + 3 * size, position.y), actualSize);
+// 	const r = drawR(p, new p.Point(position.x + 4 * size, position.y), actualSize);
+// 	const e3 = drawE(p, new p.Point(position.x + 5 * size, position.y), actualSize);
+// };
 
 const fillRectWithWords = (
 	p: paper.PaperScope,
@@ -26,15 +26,12 @@ const fillRectWithWords = (
 	staggerFraction = 0
 ) => {};
 
-function findChildByName(
-	item: paper.Item,
-	name: string
-): paper.Item | paper.Path | paper.Path.Rectangle | null {
-	if (item.name === name) return item;
+function findChildByName<T extends paper.Item>(item: paper.Item, name: string): T | null {
+	if (item.name === name) return item as T;
 	if (item.children) {
-		for (var i = 0; i < item.children.length; i++) {
-			var result = findChildByName(item.children[i], name);
-			if (result) return result;
+		for (let i = 0; i < item.children.length; i++) {
+			const result = findChildByName(item.children[i], name);
+			if (result) return result as T;
 		}
 	}
 	return null;
@@ -58,7 +55,7 @@ function sketch(p: paper.PaperScope) {
 		expandShapes: true,
 		insert: true,
 		applyMatrix: false,
-		onLoad: (svg: any) => {
+		onLoad: (svg: never) => {
 			console.debug('imported', svg);
 			p.project.view.play();
 		}
@@ -69,19 +66,22 @@ function sketch(p: paper.PaperScope) {
 	let pinCenter: null | paper.Path = null;
 	let pinCenterBounds: null | paper.Path.Rectangle = null;
 
+	/******************************************************************
+	 * Animation
+	 ******************************************************************/
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
 		console.debug('::onFrame::', 'time', event.time, 'delta', event.delta, 'count', event.count);
 
 		const items = p.project.activeLayer.getItems({});
 		if (items.length > 0 && (!pin || !pinCenter || !pinBounds || !pinCenterBounds)) {
-			pin = findChildByName(p.project.activeLayer, 'pin') as paper.Path;
-			pinCenter = findChildByName(p.project.activeLayer, 'pin-center') as paper.Path;
+			pin = findChildByName(p.project.activeLayer, 'pin');
+			pinCenter = findChildByName(p.project.activeLayer, 'pin-center');
 			console.debug('pin', pin, 'pinCenter', pinCenter);
 
 			// draw shapes and setup bounding boxes
 			if (pin && !pinBounds) {
-				pin.fillColor = 'transparent' as any;
-				pin.strokeColor = 'red' as any;
+				pin.fillColor = 'transparent' as never;
+				pin.strokeColor = 'red' as never;
 				pin.strokeWidth = DEBUGSTROKE;
 				pinBounds = new p.Path.Rectangle({
 					point: [pin.bounds.x, pin.bounds.y],
@@ -91,8 +91,8 @@ function sketch(p: paper.PaperScope) {
 				});
 			}
 			if (pinCenter && !pinCenterBounds) {
-				pinCenter.fillColor = 'transparent' as any;
-				pinCenter.strokeColor = 'red' as any;
+				pinCenter.fillColor = 'transparent' as never;
+				pinCenter.strokeColor = 'red' as never;
 				pinCenter.strokeWidth = DEBUGSTROKE;
 				pinCenterBounds = new p.Path.Rectangle({
 					point: [pinCenter.bounds.x, pinCenter.bounds.y],
@@ -126,12 +126,18 @@ function sketch(p: paper.PaperScope) {
 		p.project.view.pause();
 	};
 
+	/******************************************************************
+	 * Debugging
+	 ******************************************************************/
 	p.project.view.onMouseMove = (event: paper.MouseEvent) => {
 		if (pin) {
 			console.debug('pin contains', pin.contains(event.point));
 		}
 	};
 
+	/******************************************************************
+	 * Export the SVG when the user clicks on the canvas
+	 ******************************************************************/
 	p.project.view.onClick = (event: paper.MouseEvent) => {
 		console.debug('::onClick::', 'event', event);
 		// Export the project as an SVG
