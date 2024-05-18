@@ -40,10 +40,11 @@ const fillRectWithWords = (
 	while (rect.contains(location)) {
 		const distance = heart.bounds.center.getDistance(location);
 		if (heart.contains(location)) {
-			actualSize = size * 0.65;
+			actualSize = size * 0.55;
 			fillIn = false;
 		} else {
-			actualSize = size * lerp(distance, heart.bounds.height / 2, rect.bounds.height / 2, 0.7, 0.9);
+			actualSize =
+				size * lerp(distance, heart.bounds.height / 2, rect.bounds.height / 2, 0.8, 1.25);
 			fillIn = true;
 		}
 		switch (letters[letterIndex]) {
@@ -193,7 +194,7 @@ function sketch(p: paper.PaperScope) {
 			});
 			dotCenter = new p.Path.Circle({
 				center: centerPoint,
-				radius: dotSize / 2,
+				radius: dotSize / 3,
 				fillColor: 'transparent',
 				strokeColor: 'green'
 			});
@@ -221,10 +222,10 @@ function sketch(p: paper.PaperScope) {
 			pinCenterBounds.translate(diff);
 
 			fillRectWithWords(p, dotBounds, 7, 'now', letterLayer, dotCenter, 1 / 3);
-			fillRectWithWords(p, pinBounds, 8.5, 'behere', letterLayer, pinCenter, 1 / 6);
+			fillRectWithWords(p, pinBounds, 8.8, 'behere', letterLayer, pinCenter, 1 / 6);
 
 			letterLayer.bringToFront();
-			// p.project.view.scale(2.5, dot.bounds.center);
+			p.project.view.scale(2.5, dot.bounds.center);
 
 			// go over items in letterLayer and remove anything that's not inside the pin
 			// let's do this recursively and only work in items that have bounds
