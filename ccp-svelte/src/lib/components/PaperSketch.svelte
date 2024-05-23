@@ -5,12 +5,23 @@
 
 	export let sketch : PaperSketch;
 
-  let canvas : HTMLCanvasElement;
+	let canvas : HTMLCanvasElement;
+	let project : paper.Project;
 
-  onMount(() => {
-    paper.setup(canvas);
-    sketch.sketch(paper);
-  });
+	onMount(() => {
+		paper.setup(canvas);
+		project = paper.project;
+	});
+
+	// Reactive statement that runs whenever `sketch` changes
+	$: {
+		if (project) {
+			project.clear();
+		}
+		paper.setup(canvas);
+		project = paper.project;
+		sketch.sketch(paper);
+	}
 </script>
 
 <canvas class="paper-canvas" bind:this={canvas} data-paper-hidpi="off"></canvas>
