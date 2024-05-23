@@ -3,6 +3,7 @@
 	import { BeHereNow } from '$lib/sketches/paper/plotting/BeHereNow';
 	import { QRPlotter } from '$lib/sketches/paper/plotting/QRPlotter';
 	import { TestPatterns } from '$lib/sketches/paper/plotting/TestPatterns';
+	import { FiboCard } from '$lib/sketches/paper/plotting/FiboCard';
 
 	/*
 			TODO - sketch selection
@@ -12,10 +13,11 @@
 	let sketches = [
 		{name: 'BeHereNow', sketch: BeHereNow},
 		{name: 'TestPatterns', sketch: TestPatterns},
-		{name: 'QRPlotter', sketch: QRPlotter}
+		{name: 'QRPlotter', sketch: QRPlotter},
+		{name: 'Fibonacci', sketch: FiboCard},
 	];
 
-	let selectedSketch = sketches[0].sketch;
+	let selectedSketch = sketches[3].sketch;
 </script>
 
 <!--<P5Sketch sketch={WaterRipples} />-->

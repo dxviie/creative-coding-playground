@@ -1,5 +1,6 @@
 import type { PaperSketch } from '$lib/sketches/sketchTypes';
 import paper from 'paper';
+import { hatchRectangle } from '$lib/sketches/paper/PaperTools';
 
 const A3_SIZE_IN_MM = [420, 297];
 const A3_SIZE_IN_POINTS = A3_SIZE_IN_MM.map(mmToPoint);
@@ -30,7 +31,7 @@ async function sketch(p: paper.PaperScope) {
 		});
 		l.addChild(r);
 		l.translate([-A3.bounds.width / 2 + tileWidth / 2 - gap / 2, 0]);
-		hatchRectangle(p, r, 45, i * 0.5 + 0.5);
+		hatchRectangle(p, r, 45, mmToPoint(i * 0.5 + 0.5));
 		baseLayer.addChild(l);
 	}
 
@@ -49,45 +50,6 @@ async function sketch(p: paper.PaperScope) {
 
 	// scale to fit view
 	baseLayer.fitBounds(p.project.view.bounds.scale(0.9));
-}
-
-function hatchRectangle(
-	p: paper.PaperScope,
-	rect: paper.Path.Rectangle,
-	angle: number,
-	mmSpacing: number
-) {
-	console.debug('hatchRectangle', rect, angle, mmSpacing, 1);
-	const h = new p.Path.Line({
-		from: [rect.bounds.x, rect.bounds.y - 100],
-		to: [rect.bounds.x, rect.bounds.height + 100]
-	});
-	h.rotate(angle, [rect.bounds.x, rect.bounds.height / 2]);
-	h.strokeWidth = 1;
-	h.strokeColor = new p.Color('black');
-
-	console.debug('finding start position');
-	while (h.intersects(rect)) {
-		h.translate([-mmToPoint(mmSpacing), 0]);
-		console.debug('translating', h.bounds);
-	}
-
-	do {
-		h.translate([mmToPoint(mmSpacing), 0]);
-		const intersections = rect.getIntersections(h);
-		if (intersections.length === 2) {
-			const from = intersections[0].point;
-			const to = intersections[1].point;
-			const l = new p.Path.Line({ from: from, to: to });
-			l.strokeWidth = 1;
-			l.strokeColor = new p.Color('black');
-			if (rect.layer) {
-				rect.layer.addChild(l);
-			}
-		}
-	} while (rect.getIntersections(h).length > 0);
-
-	h.remove();
 }
 
 function mmToPoint(mm: number): number {
