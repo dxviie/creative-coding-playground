@@ -227,7 +227,7 @@ function sketch(p: paper.PaperScope) {
 			fillRectWithWords(p, pinBounds, 8.8, 'behere', letterLayer, pinCenter, 1 / 6);
 
 			letterLayer.bringToFront();
-			p.project.view.scale(1.7); //, dot.bounds.center);
+			// p.project.view.scale(1.7); //, dot.bounds.center);
 
 			// go over items in letterLayer and remove anything that's not inside the pin
 			// let's do this recursively and only work in items that have bounds
