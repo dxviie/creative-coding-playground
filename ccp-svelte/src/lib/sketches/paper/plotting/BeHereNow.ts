@@ -43,7 +43,7 @@ const fillRectWithWords = (
 			actualSize = size * 0.55;
 			fillIn = false;
 		} else {
-			actualSize = size * lerp(distance, heart.bounds.height / 2, rect.bounds.height / 2, 0.8, 1);
+			actualSize = size * lerp(distance, heart.bounds.height / 2, rect.bounds.height / 2, 0.7, 1);
 			fillIn = true;
 		}
 		switch (letters[letterIndex]) {
@@ -223,11 +223,11 @@ function sketch(p: paper.PaperScope) {
 			pinCenter.translate(diff);
 			pinCenterBounds.translate(diff);
 
-			fillRectWithWords(p, dotBounds, 7.7, 'now', letterLayer, dotCenter, 1 / 3);
+			fillRectWithWords(p, dotBounds, 6.66, 'now', letterLayer, dotCenter, 1 / 3);
 			fillRectWithWords(p, pinBounds, 8.8, 'behere', letterLayer, pinCenter, 1 / 6);
 
 			letterLayer.bringToFront();
-			// p.project.view.scale(2.5, dot.bounds.center);
+			p.project.view.scale(1.7); //, dot.bounds.center);
 
 			// go over items in letterLayer and remove anything that's not inside the pin
 			// let's do this recursively and only work in items that have bounds
