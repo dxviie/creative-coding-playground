@@ -35,18 +35,27 @@ async function sketch(p: paper.PaperScope) {
 		baseLayer.addChild(l);
 	}
 
-	console.log('exporting');
-	// p.project.view.viewSize = g.bounds.size;
-	const svg = await p.project.exportSVG({ asString: true, bounds: A3 });
-	// @ts-expect-error we know svg is a string
-	const blob = new Blob([svg], { type: 'image/svg+xml' });
-	const url = URL.createObjectURL(blob);
-	const a = document.createElement('a');
-	a.href = url;
-	a.download = 'test.svg';
-	document.body.appendChild(a);
-	a.click();
-	console.log('exported');
+	let longRect = new p.Path.Rectangle({
+		position: [100, 5],
+		size: [50, 800],
+		strokeColor: 'black',
+		strokeWidth: 1
+	}).addTo(baseLayer);
+	hatchRectangle(p, longRect, 45, 5);
+
+	p.project.view.onClick = async (event: paper.MouseEvent) => {
+		console.log('exporting');
+		const svg = await p.project.exportSVG({ asString: true, bounds: A3 });
+		// @ts-expect-error we know svg is a string
+		const blob = new Blob([svg], { type: 'image/svg+xml' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'test.svg';
+		document.body.appendChild(a);
+		a.click();
+		console.log('exported');
+	};
 
 	// scale to fit view
 	baseLayer.fitBounds(p.project.view.bounds.scale(0.9));

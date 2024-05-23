@@ -14,3 +14,5 @@ export interface SketchOptions {
 	height?: number;
 	width?: number;
 }
+
+export type Vector2D = { x: number; y: number };
