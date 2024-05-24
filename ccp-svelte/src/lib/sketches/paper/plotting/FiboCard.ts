@@ -37,10 +37,10 @@ function sketch(p: paper.PaperScope) {
 		n2 = x;
 	}
 
-	let angle = Math.random() * 360;
-	const phi = Math.random() * 180;
-	const fraction = Math.random() + 0.7;
-	let spacing = Math.random() * 100 + 5;
+	let angle = 45; //Math.random() * 360;
+	const phi = 90; //Math.random() * 180;
+	const fraction = 1.08; //Math.random() + 0.7;
+	let spacing = 21; //Math.random() * 100 + 5;
 
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
 		console.info('angle', angle, 'phi', phi, 'fraction', fraction, 'spacing', spacing);
@@ -50,6 +50,7 @@ function sketch(p: paper.PaperScope) {
 				strokeColor: 'orange',
 				strokeWidth: 6 * MM_TO_PT,
 				opacity: 0.66
+				// angle: 45
 			});
 			angle += phi;
 			spacing *= fraction;
@@ -69,6 +70,28 @@ function sketch(p: paper.PaperScope) {
 		});
 		return rect;
 	}
+
+	/************************************************************************
+			 												EVENT HANDLING
+	 ************************************************************************/
+
+	p.project.view.onClick = (event: paper.MouseEvent) => {
+		console.debug('::onClick::', 'event', event);
+		// export the svg to file
+		const svg = p.project.exportSVG({ asString: true });
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-expect-error
+		const blob = new Blob([svg], { type: 'image/svg+xml' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'fibonacci.svg';
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
+		console.log('exported');
+	};
 }
 
 export const FiboCard: PaperSketch = {

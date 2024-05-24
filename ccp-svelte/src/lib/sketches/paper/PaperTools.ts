@@ -34,14 +34,12 @@ export function hatchRectangle(
 		strokeColor: 'red'
 	});
 	h.rotate(angle, [rect.bounds.x, rect.bounds.y + rect.bounds.height / 2]);
-	// h.strokeWidth = 1;
-	// h.strokeColor = new p.Color('black');
 	console.debug('finding start position');
 	while (h.intersects(rect)) {
 		h.translate(inverse);
 		console.debug('translating', h.bounds);
 	}
-	console.info('start position', h.bounds);
+	console.debug('start position', h.bounds);
 
 	do {
 		h.translate(translation);
@@ -55,12 +53,16 @@ export function hatchRectangle(
 			if (pen) {
 				l.strokeWidth = pen.strokeWidth;
 				l.strokeColor = new p.Color(pen.strokeColor);
-				l.opacity = pen.opacity;
+				if (pen.opacity) l.opacity = pen.opacity;
+				if (pen.angle)
+					l.strokeWidth = pen.strokeWidth * Math.max(0.1, Math.abs(Math.cos(angle - pen.angle)));
 			}
 			console.debug('adding line', l.bounds);
 			if (layer) {
 				layer.addChild(l);
 			}
+		} else if (intersections.length > 0) {
+			console.warn('unhandled intersections', intersections.length);
 		}
 	} while (rect.getIntersections(h).length > 0);
 

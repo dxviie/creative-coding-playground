@@ -20,5 +20,7 @@ export type Vector2D = { x: number; y: number };
 export type Pen = {
 	strokeColor: string;
 	strokeWidth: number;
-	opacity: number;
+	angle?: number;
+	opacity?: number;
+	name?: string;
 };
