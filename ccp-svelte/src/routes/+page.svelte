@@ -4,6 +4,8 @@
 	import { QRPlotter } from '$lib/sketches/paper/plotting/QRPlotter';
 	import { TestPatterns } from '$lib/sketches/paper/plotting/TestPatterns';
 	import { FiboCard } from '$lib/sketches/paper/plotting/FiboCard';
+	import { Pane } from 'tweakpane';
+	import { onMount } from 'svelte';
 
 	/*
 			TODO - sketch selection
@@ -18,6 +20,24 @@
 	];
 
 	let selectedSketch = sketches[3].sketch;
+
+	onMount(() => {
+		const PARAMS = {
+			factor: 123,
+			title: 'hello',
+			color: '#ff0055',
+		};
+
+		const pane = new Pane({
+			title: 'Parameters',
+			expanded: false,
+		});
+
+		pane.addBinding(PARAMS, 'factor');
+		pane.addBinding(PARAMS, 'title');
+		pane.addBinding(PARAMS, 'color');
+		pane.hidden = true;
+	});
 </script>
 
 <!--<P5Sketch sketch={WaterRipples} />-->

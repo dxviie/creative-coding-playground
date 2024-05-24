@@ -19,6 +19,7 @@
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+		"@tweakpane/core": "^2.0.3",
 		"@types/eslint": "8.56.0",
 		"@types/p5": "^1.7.6",
 		"@types/paper": "^0.12.3",
@@ -50,6 +51,7 @@
 		"paper": "^0.12.17",
 		"qrcode-svg": "^1.1.0",
 		"tailwind-merge": "^2.2.1",
-		"tailwind-variants": "^0.1.20"
+		"tailwind-variants": "^0.1.20",
+		"tweakpane": "^4.0.3"
 	}
 }

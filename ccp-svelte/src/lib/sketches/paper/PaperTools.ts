@@ -1,11 +1,14 @@
 import paper from 'paper';
 import { getTranslationVector } from '$lib/sketches/SketchTools';
+import type { Pen } from '$lib/sketches/sketchTypes';
 
 export function hatchRectangle(
 	p: paper.PaperScope,
 	rect: paper.Path.Rectangle,
 	angle: number,
-	spacing: number
+	spacing: number,
+	layer: paper.Layer | null = null,
+	pen: Pen | null = null
 ) {
 	const translation = getTranslationVector(angle, spacing);
 	if (translation.x < 0) {
@@ -49,7 +52,15 @@ export function hatchRectangle(
 			const l = new p.Path.Line({ from: from, to: to });
 			l.strokeWidth = 1;
 			l.strokeColor = new p.Color('black');
+			if (pen) {
+				l.strokeWidth = pen.strokeWidth;
+				l.strokeColor = new p.Color(pen.strokeColor);
+				l.opacity = pen.opacity;
+			}
 			console.debug('adding line', l.bounds);
+			if (layer) {
+				layer.addChild(l);
+			}
 		}
 	} while (rect.getIntersections(h).length > 0);
 
