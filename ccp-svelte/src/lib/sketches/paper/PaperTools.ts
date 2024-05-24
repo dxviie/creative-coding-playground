@@ -16,7 +16,7 @@ export function hatchRectangle(
 		translation.y *= -1;
 	}
 	const inverse = { x: -translation.x, y: -translation.y };
-	console.info(
+	console.debug(
 		'hatchRectangle',
 		'rect',
 		rect.bounds,

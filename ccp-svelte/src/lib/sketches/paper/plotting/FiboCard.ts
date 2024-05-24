@@ -21,23 +21,29 @@ function sketch(p: paper.PaperScope) {
 	});
 	canvas.addTo(root);
 
-	let n1 = 13;
-	let n2 = 21;
+	let n1 = 2;
+	let n2 = 3;
 	let x = 0;
 
 	const rects: paper.Path.Rectangle[] = [];
 
 	if (PATTERN === 'fibonacci') {
 		while (x < WIDTH) {
-			const xNext = Math.min(n1 + n2, WIDTH);
-			console.debug('drawing rect at -- ', x, xNext);
-			const rect = drawRect(x, xNext);
+			const fibNext = n1 + n2;
+			const xNext = Math.min(x + fibNext, WIDTH);
+			console.info('drawing rect at -- ', x, xNext, 'fib', fibNext);
+			const rect = new p.Path.Rectangle({
+				from: [x, 0],
+				to: [xNext, HEIGHT],
+				strokeColor: 'red',
+				strokeWidth: 1
+			});
 			rect.addTo(root);
 			rects.push(rect);
 
 			x = xNext;
 			n1 = n2;
-			n2 = x;
+			n2 = fibNext;
 		}
 	} else if (PATTERN === 'test-grid') {
 		const blockSize = 150;
@@ -46,7 +52,7 @@ function sketch(p: paper.PaperScope) {
 				const rect = new p.Path.Rectangle({
 					from: [x, y],
 					to: [x + blockSize, y + blockSize],
-					strokeColor: 'black',
+					strokeColor: 'red',
 					strokeWidth: 1
 				});
 				rects.push(rect);
@@ -55,12 +61,12 @@ function sketch(p: paper.PaperScope) {
 	}
 
 	let angle = 45; //Math.random() * 360;
-	const phi = 2; //Math.random() * 180;
+	const phi = 4; //Math.random() * 180;
 	const fraction = 1; //Math.random() + 0.7;
-	let spacing = 15; //Math.random() * 100 + 5;
+	let spacing = 21; //Math.random() * 100 + 5;
 
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
-		console.info(
+		console.debug(
 			'event',
 			event,
 			'angle',
@@ -81,17 +87,9 @@ function sketch(p: paper.PaperScope) {
 		}
 		hatchings.bringToFront();
 
-		root.fitBounds(p.project.view.bounds.scale(0.9));
+		// root.fitBounds(p.project.view.bounds.scale(0.9));
 		p.project.view.pause();
 	};
-
-	function drawRect(x0: number, x1: number) {
-		return new p.Path.Rectangle({
-			from: [x0, 0],
-			to: [x1, HEIGHT],
-			strokeColor: 'transparent'
-		});
-	}
 
 	/************************************************************************
 			 												EVENT HANDLING
