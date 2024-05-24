@@ -59,11 +59,22 @@ function sketch(p: paper.PaperScope) {
 	let spacing = 15; //Math.random() * 100 + 5;
 
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
-		console.info('angle', angle, 'phi', phi, 'fraction', fraction, 'spacing', spacing);
+		console.info(
+			'event',
+			event,
+			'angle',
+			angle,
+			'phi',
+			phi,
+			'fraction',
+			fraction,
+			'spacing',
+			spacing
+		);
 		for (let i = 0; i < rects.length; i++) {
 			const rect = rects[i];
 			hatchRectangle(p, rect, angle, spacing, hatchings, {
-				strokeColor: 'orange',
+				strokeColor: '#F7941D',
 				strokeWidth: 6 * MM_TO_PT,
 				opacity: 0.66,
 				angle: 45
@@ -79,12 +90,11 @@ function sketch(p: paper.PaperScope) {
 	};
 
 	function drawRect(x0: number, x1: number) {
-		let rect = new p.Path.Rectangle({
+		return new p.Path.Rectangle({
 			from: [x0, 0],
 			to: [x1, HEIGHT],
 			strokeColor: 'transparent'
 		});
-		return rect;
 	}
 
 	/************************************************************************

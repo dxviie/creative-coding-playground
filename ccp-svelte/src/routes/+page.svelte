@@ -25,7 +25,7 @@
 		const PARAMS = {
 			factor: 123,
 			title: 'hello',
-			color: '#ff0055',
+			color: '#F7941D',
 		};
 
 		const pane = new Pane({
@@ -36,7 +36,7 @@
 		pane.addBinding(PARAMS, 'factor');
 		pane.addBinding(PARAMS, 'title');
 		pane.addBinding(PARAMS, 'color');
-		pane.hidden = true;
+		// pane.hidden = true;
 	});
 </script>
 

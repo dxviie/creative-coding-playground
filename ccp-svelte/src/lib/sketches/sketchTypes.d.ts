@@ -20,7 +20,11 @@ export type Vector2D = { x: number; y: number };
 export type Pen = {
 	strokeColor: string;
 	strokeWidth: number;
-	angle?: number;
 	opacity?: number;
 	name?: string;
+	/*
+	 In case of a wide pen, this is the angle at which the pen has the maximum width
+	 The angle is measured from the horizontal x-axis which runs parallel to the base of the axidraw
+	 */
+	angle?: number;
 };
