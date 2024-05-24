@@ -1,9 +1,10 @@
 import type { PaperSketch } from '$lib/sketches/sketchTypes';
 import { hatchRectangle } from '$lib/sketches/paper/PaperTools';
+import { PAPERJS_MM_TO_PT } from '$lib/sketches/SketchTools';
+import { COPIC_YR16_MARKER } from '$lib/sketches/Pens';
 
-const MM_TO_PT = 3.775;
-const WIDTH = 420 * MM_TO_PT;
-const HEIGHT = 298 * MM_TO_PT;
+const WIDTH = 420 * PAPERJS_MM_TO_PT;
+const HEIGHT = 298 * PAPERJS_MM_TO_PT;
 
 const PATTERNS = ['fibonacci', 'test-grid'];
 const PATTERN = PATTERNS[0];
@@ -73,12 +74,7 @@ function sketch(p: paper.PaperScope) {
 		);
 		for (let i = 0; i < rects.length; i++) {
 			const rect = rects[i];
-			hatchRectangle(p, rect, angle, spacing, hatchings, {
-				strokeColor: '#F7941D',
-				strokeWidth: 6 * MM_TO_PT,
-				opacity: 0.66,
-				angle: 45
-			});
+			hatchRectangle(p, rect, angle, spacing, hatchings, COPIC_YR16_MARKER);
 			angle += phi;
 			spacing *= fraction;
 			rect.remove();

@@ -1,5 +1,7 @@
 import type { Vector2D } from '$lib/sketches/sketchTypes';
 
+export const PAPERJS_MM_TO_PT = 3.775;
+
 export function getTranslationVector(degrees: number, distance: number): Vector2D {
 	const radians = degrees * (Math.PI / 180);
 	return { x: distance * Math.cos(radians), y: distance * Math.sin(radians) };

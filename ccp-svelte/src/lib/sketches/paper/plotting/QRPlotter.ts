@@ -1,12 +1,12 @@
 import type { PaperSketch } from '$lib/sketches/sketchTypes';
+import { PAPERJS_MM_TO_PT } from '$lib/sketches/SketchTools';
 
 // using https://github.com/papnkukn/qrcode-svg
 // npm install qrcode-svg
 
-const MM_TO_PT = 3.775;
-const WIDTH = 15 * MM_TO_PT;
-const HEIGHT = 15 * MM_TO_PT;
-const PEN_WIDTH = 1 * MM_TO_PT;
+const WIDTH = 15 * PAPERJS_MM_TO_PT;
+const HEIGHT = 15 * PAPERJS_MM_TO_PT;
+const PEN_WIDTH = PAPERJS_MM_TO_PT;
 const VIEW_SCALE = 15;
 const HOR_COLOR = 'orange';
 const VERT_COLOR = 'green';

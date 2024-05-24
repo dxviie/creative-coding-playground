@@ -1,8 +1,8 @@
 import type { PaperSketch } from '$lib/sketches/sketchTypes';
+import { PAPERJS_MM_TO_PT } from '$lib/sketches/SketchTools';
 
-const MM_TO_PT = 3.775;
-const WIDTH = 186 * MM_TO_PT;
-const HEIGHT = 190 * MM_TO_PT;
+const WIDTH = 186 * PAPERJS_MM_TO_PT;
+const HEIGHT = 190 * PAPERJS_MM_TO_PT;
 
 const DEBUG = true;
 const DEBUGSTROKE = DEBUG ? 3 : 0;
@@ -172,7 +172,7 @@ function sketch(p: paper.PaperScope) {
 
 		// setup the dot
 		if (!dot && !dotCenter) {
-			const dotSize = 10 * MM_TO_PT;
+			const dotSize = 10 * PAPERJS_MM_TO_PT;
 
 			const centerPoint = new p.Point(
 				canvas.bounds.x + canvas.bounds.width - dotSize * 1.5,
