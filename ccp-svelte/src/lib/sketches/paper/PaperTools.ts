@@ -54,8 +54,10 @@ export function hatchRectangle(
 				l.strokeWidth = pen.strokeWidth;
 				l.strokeColor = new p.Color(pen.strokeColor);
 				if (pen.opacity) l.opacity = pen.opacity;
-				if (pen.angle)
-					l.strokeWidth = pen.strokeWidth * Math.max(0.1, Math.abs(Math.cos(angle - pen.angle)));
+				if (pen.angle) {
+					const radians = (angle - pen.angle) * (Math.PI / 180);
+					l.strokeWidth = pen.strokeWidth * Math.max(0.1, Math.abs(Math.sin(radians)));
+				}
 			}
 			console.debug('adding line', l.bounds);
 			if (layer) {
