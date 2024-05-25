@@ -6,40 +6,57 @@ import { COPIC_YR16_MARKER } from '$lib/sketches/Pens';
 const WIDTH = 420 * PAPERJS_MM_TO_PT;
 const HEIGHT = 298 * PAPERJS_MM_TO_PT;
 
+const CARD_WIDTH = 55 * PAPERJS_MM_TO_PT;
+const CARD_HEIGHT = 85 * PAPERJS_MM_TO_PT;
+
 const PATTERNS = ['fibonacci', 'test-grid'];
 const PATTERN = PATTERNS[0];
 
 function sketch(p: paper.PaperScope) {
-	const root = new p.Layer({ name: 'root' });
-	const hatchings = new p.Layer({ name: 'hatchings' });
-	hatchings.addTo(root);
+	const rootLayer = new p.Layer({ name: 'root' });
+	const hatchingLayer = new p.Layer({ name: 'hatchings' });
+	const cardsLayer = new p.Layer({ name: 'cards' });
+	hatchingLayer.addTo(rootLayer);
+	cardsLayer.addTo(rootLayer);
 	const canvas = new p.Path.Rectangle({
 		point: [0, 0],
 		size: [WIDTH, HEIGHT],
 		strokeColor: 'black',
 		fillColor: 'white'
 	});
-	canvas.addTo(root);
-
-	let n1 = 2;
-	let n2 = 3;
-	let x = 0;
+	canvas.addTo(rootLayer);
 
 	const rects: paper.Path.Rectangle[] = [];
+	const inverseRects: paper.Path.Rectangle[] = [];
 
 	if (PATTERN === 'fibonacci') {
-		while (x < WIDTH) {
+		let n1 = 2;
+		let n2 = 3;
+		let x = (WIDTH % CARD_WIDTH) / 2 - 5;
+
+		while (x < WIDTH - (WIDTH % CARD_WIDTH) / 2) {
 			const fibNext = n1 + n2;
-			const xNext = Math.min(x + fibNext, WIDTH);
-			console.info('drawing rect at -- ', x, xNext, 'fib', fibNext);
+			const xNext = Math.min(x + fibNext, WIDTH - (WIDTH % CARD_WIDTH) / 2);
+			const from = [x, (HEIGHT % CARD_HEIGHT) / 2 - 5];
+			const to = [xNext, HEIGHT - (HEIGHT % CARD_HEIGHT) / 2 + 5];
+			console.debug('drawing rect at -- ', x, xNext, 'fib', fibNext);
 			const rect = new p.Path.Rectangle({
-				from: [x, 0],
-				to: [xNext, HEIGHT],
+				from: from,
+				to: to,
 				strokeColor: 'red',
 				strokeWidth: 1
 			});
-			rect.addTo(root);
+			rect.addTo(rootLayer);
 			rects.push(rect);
+
+			const inverseRect = new p.Path.Rectangle({
+				from: [WIDTH - from[0], from[1]],
+				to: [WIDTH - to[0], to[1]],
+				strokeColor: 'blue',
+				strokeWidth: 1
+			});
+			inverseRect.addTo(rootLayer);
+			inverseRects.push(inverseRect);
 
 			x = xNext;
 			n1 = n2;
@@ -60,13 +77,30 @@ function sketch(p: paper.PaperScope) {
 		}
 	}
 
-	let angle = 45; //Math.random() * 360;
-	const phi = 4; //Math.random() * 180;
-	const fraction = 1; //Math.random() + 0.7;
-	let spacing = 21; //Math.random() * 100 + 5;
+	const cards: paper.Path.Rectangle[] = [];
+	for (let x = (WIDTH % CARD_WIDTH) / 2; x < WIDTH - CARD_WIDTH; x += CARD_WIDTH) {
+		for (let y = (HEIGHT % CARD_HEIGHT) / 2; y < HEIGHT - CARD_HEIGHT; y += CARD_HEIGHT) {
+			const card = new p.Path.Rectangle({
+				from: [x, y],
+				to: [x + CARD_WIDTH, y + CARD_HEIGHT],
+				strokeColor: 'red',
+				strokeWidth: 1
+			});
+			console.debug('card', card.bounds);
+			card.addTo(cardsLayer);
+			cards.push(card);
+		}
+	}
+
+	console.info('cards', cardsLayer.children.length);
+
+	let angle = 45; // Math.random() * 360;
+	const phi = 137.5 / 11; //Math.random() * 180;
+	const fraction = 1.05;
+	let spacing = 20; //Math.random() * 100 + 5;
 
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
-		console.debug(
+		console.info(
 			'event',
 			event,
 			'angle',
@@ -80,17 +114,53 @@ function sketch(p: paper.PaperScope) {
 		);
 		for (let i = 0; i < rects.length; i++) {
 			const rect = rects[i];
-			hatchRectangle(p, rect, angle, spacing, hatchings, COPIC_YR16_MARKER);
+			const inverseRect = inverseRects[i];
+			hatchRectangle(p, rect, angle, spacing, hatchingLayer, COPIC_YR16_MARKER);
+			hatchRectangle(p, inverseRect, angle - 137.5, spacing * 2, hatchingLayer, COPIC_YR16_MARKER);
 			angle += phi;
-			spacing *= fraction;
+			spacing = Math.max(fraction * spacing, 0.1);
 			rect.remove();
+			inverseRect.remove();
 		}
-		hatchings.bringToFront();
+		hatchingLayer.bringToFront();
+		cardsLayer.bringToFront();
+		cardsLayer.opacity = 0.5;
 
-		// root.fitBounds(p.project.view.bounds.scale(0.9));
+		const fibonacciGenerator = fibonacci();
+
+		// for (let i = 0; i < 12; i++) {
+		// 	// draw 10 circles
+		// 	const radius = fibonacciGenerator.next().value;
+		//
+		// 	let newPoint = [
+		// 		radius + Math.random() * WIDTH - radius * 2,
+		// 		radius + Math.random() * HEIGHT - radius * 2
+		// 	];
+		// 	const circle = new p.Path.Circle({
+		// 		center: newPoint, //  [newPoint.x + radius, newPoint.y + radius],
+		// 		radius: radius,
+		// 		strokeColor: '#F7941D',
+		// 		strokeWidth: 2 * PAPERJS_MM_TO_PT,
+		// 		opacity: 0
+		// 	});
+		// 	hatchRectangle(p, circle, 45, 20, hatchingLayer, {
+		// 		strokeColor: '#F7941D',
+		// 		strokeWidth: 2 * PAPERJS_MM_TO_PT,
+		// 		opacity: 0.66
+		// 	});
+		// }
+
+		rootLayer.fitBounds(p.project.view.bounds.scale(0.9));
 		p.project.view.pause();
 	};
 
+	function* fibonacci() {
+		let [prev, curr] = [0, 1];
+		while (true) {
+			[prev, curr] = [curr, prev + curr];
+			yield curr;
+		}
+	}
 	/************************************************************************
 			 												EVENT HANDLING
 	 ************************************************************************/
