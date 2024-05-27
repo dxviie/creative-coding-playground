@@ -1,7 +1,7 @@
 import type { PaperSketch } from '$lib/sketches/sketchTypes';
 import { hatchRectangle } from '$lib/sketches/paper/PaperTools';
 import { PAPERJS_MM_TO_PT } from '$lib/sketches/SketchTools';
-import { COPIC_YR16_MARKER } from '$lib/sketches/Pens';
+import { COPIC_100_MARKER, COPIC_YR16_MARKER } from '$lib/sketches/Pens';
 
 const WIDTH = 420 * PAPERJS_MM_TO_PT;
 const HEIGHT = 298 * PAPERJS_MM_TO_PT;
@@ -14,9 +14,10 @@ const PATTERN = PATTERNS[0];
 
 function sketch(p: paper.PaperScope) {
 	const rootLayer = new p.Layer({ name: 'root' });
-	const hatchingLayer = new p.Layer({ name: 'hatchings' });
+	const orangeHatchingLayer = new p.Layer({ name: 'orange hatchings' });
+	const blackHatchingLayer = new p.Layer({ name: 'black hatchings' });
 	const cardsLayer = new p.Layer({ name: 'cards' });
-	hatchingLayer.addTo(rootLayer);
+	orangeHatchingLayer.addTo(rootLayer);
 	cardsLayer.addTo(rootLayer);
 	const canvas = new p.Path.Rectangle({
 		point: [0, 0],
@@ -94,10 +95,11 @@ function sketch(p: paper.PaperScope) {
 
 	console.info('cards', cardsLayer.children.length);
 
-	let angle = 45; // Math.random() * 360;
-	const phi = 137.5 / 11; //Math.random() * 180;
-	const fraction = 1.05;
-	let spacing = 20; //Math.random() * 100 + 5;
+	let angle = Math.random() * 360;
+	let inverseAngle = Math.random() * 360;
+	const phi = Math.random() * 180;
+	const fraction = 1;
+	let spacing = 30; //Math.random() * 100 + 5;
 
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
 		console.info(
@@ -105,6 +107,8 @@ function sketch(p: paper.PaperScope) {
 			event,
 			'angle',
 			angle,
+			'inverseAngle',
+			inverseAngle,
 			'phi',
 			phi,
 			'fraction',
@@ -112,21 +116,43 @@ function sketch(p: paper.PaperScope) {
 			'spacing',
 			spacing
 		);
+		orangeHatchingLayer.removeChildren();
+		let myAngle = angle + event.count;
+		let myInverseAngle = inverseAngle + event.count;
 		for (let i = 0; i < rects.length; i++) {
 			const rect = rects[i];
 			const inverseRect = inverseRects[i];
-			hatchRectangle(p, rect, angle, spacing, hatchingLayer, COPIC_YR16_MARKER);
-			hatchRectangle(p, inverseRect, angle - 137.5, spacing * 2, hatchingLayer, COPIC_YR16_MARKER);
-			angle += phi;
-			spacing = Math.max(fraction * spacing, 0.1);
+			hatchRectangle(
+				p,
+				inverseRect,
+				myInverseAngle,
+				spacing * 3,
+				blackHatchingLayer,
+				COPIC_100_MARKER
+			);
+			hatchRectangle(
+				p,
+				inverseRect,
+				myInverseAngle - 137.5,
+				spacing * 2,
+				blackHatchingLayer,
+				COPIC_100_MARKER
+			);
+
+			hatchRectangle(p, rect, myAngle, spacing, orangeHatchingLayer, COPIC_YR16_MARKER);
+			hatchRectangle(p, rect, myAngle - 137.5, spacing * 2, orangeHatchingLayer, COPIC_YR16_MARKER);
+
+			myAngle += phi;
+			myInverseAngle += phi;
+			// spacing = Math.max(fraction * spacing, 0.1);
 			rect.remove();
 			inverseRect.remove();
 		}
-		hatchingLayer.bringToFront();
+		orangeHatchingLayer.bringToFront();
 		cardsLayer.bringToFront();
-		cardsLayer.opacity = 0.5;
+		cardsLayer.opacity = 0; //0.5;
 
-		const fibonacciGenerator = fibonacci();
+		// const fibonacciGenerator = fibonacci();
 
 		// for (let i = 0; i < 12; i++) {
 		// 	// draw 10 circles
@@ -150,9 +176,9 @@ function sketch(p: paper.PaperScope) {
 		// 	});
 		// }
 
-		rootLayer.fitBounds(p.project.view.bounds.scale(0.9));
 		p.project.view.pause();
 	};
+	rootLayer.fitBounds(p.project.view.bounds.scale(0.9));
 
 	function* fibonacci() {
 		let [prev, curr] = [0, 1];
