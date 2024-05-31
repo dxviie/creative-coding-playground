@@ -95,11 +95,12 @@ function sketch(p: paper.PaperScope) {
 
 	console.info('cards', cardsLayer.children.length);
 
-	let angle = Math.random() * 360;
-	let inverseAngle = Math.random() * 360;
+	const angle = Math.random() * 360;
+	const inverseAngle = Math.random() * 360;
 	const phi = Math.random() * 180;
+	const inversePhi = 137.5 / rects.length;
 	const fraction = 1;
-	let spacing = 30; //Math.random() * 100 + 5;
+	const spacing = 30; //Math.random() * 100 + 5;
 
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
 		console.info(
@@ -143,7 +144,7 @@ function sketch(p: paper.PaperScope) {
 			hatchRectangle(p, rect, myAngle - 137.5, spacing * 2, orangeHatchingLayer, COPIC_YR16_MARKER);
 
 			myAngle += phi;
-			myInverseAngle += phi;
+			myInverseAngle += inversePhi;
 			// spacing = Math.max(fraction * spacing, 0.1);
 			rect.remove();
 			inverseRect.remove();
