@@ -1,7 +1,7 @@
 import type { PaperSketch } from '$lib/sketches/sketchTypes';
 import { hatchRectangle } from '$lib/sketches/paper/PaperTools';
 import { PAPERJS_MM_TO_PT } from '$lib/sketches/SketchTools';
-import { COPIC_100_MARKER, COPIC_YR16_MARKER } from '$lib/sketches/Pens';
+import { COPIC_YR16_MARKER } from '$lib/sketches/Pens';
 
 const WIDTH = 420 * PAPERJS_MM_TO_PT;
 const HEIGHT = 298 * PAPERJS_MM_TO_PT;
@@ -95,12 +95,13 @@ function sketch(p: paper.PaperScope) {
 
 	console.info('cards', cardsLayer.children.length);
 
-	const angle = Math.random() * 360;
-	const inverseAngle = Math.random() * 360;
-	const phi = Math.random() * 180;
+	const angle = 3; //Math.random() * 360;
+	const inverseAngle = 30; //Math.random() * 360;
+	const phi = 137.5 / rects.length; //Math.random() * 180;
 	const inversePhi = 137.5 / rects.length;
 	const fraction = 1;
-	const spacing = 30; //Math.random() * 100 + 5;
+	const spacing = 33; //Math.random() * 100 + 20;
+	const inverseSpacing = 40; // Math.random() * 100 + 20;
 
 	p.project.view.onFrame = (event: { time: number; delta: number; count: number }) => {
 		console.info(
@@ -127,21 +128,21 @@ function sketch(p: paper.PaperScope) {
 				p,
 				inverseRect,
 				myInverseAngle,
-				spacing * 3,
+				inverseSpacing,
 				blackHatchingLayer,
-				COPIC_100_MARKER
+				COPIC_YR16_MARKER
 			);
-			hatchRectangle(
-				p,
-				inverseRect,
-				myInverseAngle - 137.5,
-				spacing * 2,
-				blackHatchingLayer,
-				COPIC_100_MARKER
-			);
+			// hatchRectangle(
+			// 	p,
+			// 	inverseRect,
+			// 	myInverseAngle - 137.5,
+			// 	inverseSpacing * 2,
+			// 	blackHatchingLayer,
+			// 	COPIC_YR16_MARKER
+			// );
 
 			hatchRectangle(p, rect, myAngle, spacing, orangeHatchingLayer, COPIC_YR16_MARKER);
-			hatchRectangle(p, rect, myAngle - 137.5, spacing * 2, orangeHatchingLayer, COPIC_YR16_MARKER);
+			// hatchRectangle(p, rect, myAngle - 137.5, spacing * 2, orangeHatchingLayer, COPIC_YR16_MARKER);
 
 			myAngle += phi;
 			myInverseAngle += inversePhi;
