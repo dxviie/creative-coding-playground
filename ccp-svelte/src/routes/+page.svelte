@@ -15,17 +15,15 @@
 			TODO generic sketch props (e.g. size 720p, 1080p, 4K, A4, A3,... debug, ...)
 	 */
 
-	let sketches = [
-		{name: 'Be Here Now', sketch: BeHereNow},
-		{name: 'Test Patterns', sketch: TestPatterns},
-		{name: 'QR Plotter', sketch: QRPlotter},
-		{name: 'Fibonacci', sketch: FiboCard},
-		{name: 'Water Ripples', sketch: WaterRipples}
+	let sketches: Sketch[] = [
+		BeHereNow, TestPatterns, QRPlotter, FiboCard, WaterRipples
 	];
 
 	let selectedSketch : Sketch | null = null;
 
 	onMount(() => {
+
+		selectedSketch = sketches[4];
 		const PARAMS = {
 			factor: 123,
 			title: 'hello',
@@ -45,8 +43,8 @@
 </script>
 
 <select bind:value={selectedSketch}>
-	{#each sketches as {name, sketch}}
-		<option value={sketch}>{name}</option>
+	{#each sketches as sketch}
+		<option value={sketch}>{sketch.name}</option>
 	{/each}
 </select>
 

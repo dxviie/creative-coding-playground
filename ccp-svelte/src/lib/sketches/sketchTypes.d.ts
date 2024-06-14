@@ -15,8 +15,18 @@ export interface PaperSketch {
 }
 
 export interface SketchOptions {
-	height?: number;
-	width?: number;
+	height: number;
+	width: number;
+	unit: 'mm' | 'px';
+	params?: Param[];
+}
+
+export interface Param {
+	name: string;
+	value: any;
+	type: 'number' | 'string' | 'boolean' | 'range' | 'color';
+	min?: number;
+	max?: number;
 }
 
 export type Vector2D = { x: number; y: number };
