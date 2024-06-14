@@ -401,5 +401,6 @@ async function sketch(p: paper.PaperScope) {
 
 export const QRPlotter: PaperSketch = {
 	sketch: sketch,
-	name: '_Template'
+	name: 'QR Plotter',
+	type: 'paper'
 };

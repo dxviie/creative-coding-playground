@@ -487,5 +487,6 @@ function drawW(p: paper.PaperScope, position: paper.Point, size: number) {
 
 export const BeHereNow: PaperSketch = {
 	sketch: sketch,
-	name: 'be here, now'
+	name: 'be here, now',
+	type: 'paper'
 };

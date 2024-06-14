@@ -6,6 +6,9 @@
 	import { FiboCard } from '$lib/sketches/paper/plotting/FiboCard';
 	import { Pane } from 'tweakpane';
 	import { onMount } from 'svelte';
+	import { WaterRipples } from '$lib/sketches/p5/dandly-ambient/WaterRipples';
+	import type { Sketch } from '$lib/sketches/sketchTypes';
+	import P5Sketch from '$lib/components/P5Sketch.svelte';
 
 	/*
 			TODO - sketch selection
@@ -13,13 +16,14 @@
 	 */
 
 	let sketches = [
-		{name: 'BeHereNow', sketch: BeHereNow},
-		{name: 'TestPatterns', sketch: TestPatterns},
-		{name: 'QRPlotter', sketch: QRPlotter},
+		{name: 'Be Here Now', sketch: BeHereNow},
+		{name: 'Test Patterns', sketch: TestPatterns},
+		{name: 'QR Plotter', sketch: QRPlotter},
 		{name: 'Fibonacci', sketch: FiboCard},
+		{name: 'Water Ripples', sketch: WaterRipples}
 	];
 
-	let selectedSketch = sketches[3].sketch;
+	let selectedSketch : Sketch | null = null;
 
 	onMount(() => {
 		const PARAMS = {
@@ -40,13 +44,16 @@
 	});
 </script>
 
-<!--<P5Sketch sketch={WaterRipples} />-->
-<!--<PaperSketch sketch={TestPatterns} />-->
 <select bind:value={selectedSketch}>
 	{#each sketches as {name, sketch}}
 		<option value={sketch}>{name}</option>
 	{/each}
 </select>
 
-<PaperSketch sketch={selectedSketch} />
-<!--<PaperSketch sketch={QRPlotter} />-->
+{#if selectedSketch && selectedSketch.type === 'p5'}
+	<P5Sketch sketch={selectedSketch} />
+{:else if selectedSketch && selectedSketch.type === 'paper'}
+	<PaperSketch sketch={selectedSketch} />
+{:else}
+	<p>Unknown sketch type: {selectedSketch}</p>
+{/if}

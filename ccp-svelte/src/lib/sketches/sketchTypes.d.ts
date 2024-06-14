@@ -1,13 +1,17 @@
 import type p5 from 'p5';
 
+export type Sketch = P5Sketch | PaperSketch;
+
 export interface P5Sketch {
 	sketch: (p: p5, options?: SketchOptions) => void;
 	name?: string;
+	type: 'p5';
 }
 
 export interface PaperSketch {
 	sketch: (paper: paper.PaperScope, options?: SketchOptions) => void;
 	name?: string;
+	type: 'paper';
 }
 
 export interface SketchOptions {

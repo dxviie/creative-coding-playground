@@ -214,5 +214,6 @@ function sketch(p: paper.PaperScope) {
 
 export const FiboCard: PaperSketch = {
 	sketch: sketch,
-	name: 'Fibonacci'
+	name: 'Fibonacci',
+	type: 'paper'
 };

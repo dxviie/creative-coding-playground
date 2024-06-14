@@ -71,5 +71,6 @@ function pointToMm(point: number): number {
 
 export const TestPatterns: PaperSketch = {
 	sketch: sketch,
-	name: 'Test patterns for pen testing'
+	name: 'Test patterns',
+	type: 'paper'
 };

@@ -1,4 +1,5 @@
 import type p5 from 'p5';
+import type { P5Sketch } from '$lib/sketches/sketchTypes';
 
 // from https://openprocessing.org/sketch/1678058
 
@@ -114,7 +115,8 @@ function sketch(p: p5) {
 	};
 }
 
-export const WaterRipples = {
+export const WaterRipples: P5Sketch = {
 	sketch: sketch,
-	name: 'Water Ripples'
+	name: 'Water Ripples',
+	type: 'p5'
 };
