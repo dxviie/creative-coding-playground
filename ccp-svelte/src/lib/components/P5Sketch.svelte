@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import type { P5Sketch } from '$lib/sketches/sketchTypes';
 	import type p5 from 'p5';
 
@@ -25,7 +25,7 @@
     export let sketch : P5Sketch;
 
     let canvasWrapper : HTMLElement;
-		let instance : p5;
+		let instance : p5 | null = null;
 		let recording = false;
 
     onMount(async () => {
@@ -35,11 +35,18 @@
 				const sketchDraw = instance.draw;
 				instance.draw = () => {
 					sketchDraw();
-					if (recording) {
+					if (instance && recording) {
 						let paddedFrame = String(instance.frameCount).padStart(10, '0');
 						instance.saveCanvas(`frame-${paddedFrame}`, 'png');
 					}
 				}
+		});
+
+		onDestroy(() => {
+			if (instance) {
+				instance.remove();
+				instance = null;
+			}
 		});
 </script>
 
